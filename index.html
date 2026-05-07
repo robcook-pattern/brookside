@@ -1,0 +1,2565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>FSY Field Mission — Heber City</title>
+<!-- PWA / Add to Home Screen -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FSY Mission">
+<meta name="theme-color" content="#0c1f3f">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Marcellus&family=Josefin+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+/* ─── TOKENS ─────────────────────────────────────────────── */
+:root {
+  --navy:   #0c1f3f;
+  --navy2:  #152d56;
+  --gold:   #b8923a;
+  --gold2:  #d4a84b;
+  --gold3:  #e8cc7a;
+  --cream:  #f3ede0;
+  --paper:  #faf6ec;
+  --muted:  #7a7060;
+  --border: #ddd4b8;
+  --green:  #2a5e44;
+  --warm:   #c0392b;
+  --cool:   #2980b9;
+  --shadow: 0 6px 28px rgba(12,31,63,0.11);
+}
+
+/* ─── MOBILE RESPONSIVE ──────────────────────────────────── */
+/* Safe area insets for notch/home-bar phones */
+main {
+  padding-bottom: max(80px, calc(60px + env(safe-area-inset-bottom)));
+}
+.app-header {
+  padding-left: max(18px, env(safe-area-inset-left));
+  padding-right: max(18px, env(safe-area-inset-right));
+}
+#gps-test-panel {
+  padding-bottom: max(24px, env(safe-area-inset-bottom));
+}
+/* Min touch target 44px on all interactive elements */
+.btn-primary, .btn-ghost, .complete-btn, .sim-btn,
+.gps-panel-btn, .gps-panel-close, .fs-btn { min-height: 44px; }
+.task-row { min-height: 52px; }
+/* Prevent text from being too large on big phones */
+@media (min-width: 420px) {
+  .start-title { font-size: 2.6rem; }
+  .mc-name { font-size: 1.15rem; }
+}
+/* Very small phones */
+@media (max-width: 360px) {
+  .start-title { font-size: 1.9rem; }
+  .mc-name { font-size: 1rem; }
+  .mc-badge { display: none; }
+  main { padding-left: 10px; padding-right: 10px; }
+  .card { padding: 14px; }
+  .mc-body { padding: 12px 14px; }
+}
+/* Landscape mode — don't let cards get too tall */
+@media (max-height: 500px) and (orientation: landscape) {
+  .heartbeat-block { padding: 10px 0 4px; }
+  .hb-ring-wrap { width: 60px; height: 60px; }
+  .go-word { font-size: 5rem; }
+}
+
+/* ─── RESET ──────────────────────────────────────────────── */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; }
+body {
+  background: var(--cream);
+  color: var(--navy);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Aged-paper texture */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse 90% 55% at 50% 0%, rgba(184,146,58,0.1) 0%, transparent 65%);
+}
+
+/* ─── SVG ICON SYSTEM ────────────────────────────────────── */
+.icon { display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+.icon svg { display:block; }
+
+/* ─── HEADER ─────────────────────────────────────────────── */
+.app-header {
+  position: sticky; top: 0; z-index: 300;
+  background: var(--navy);
+  padding: 0 18px;
+  height: 58px;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.3);
+}
+.header-brand {}
+.header-title {
+  font-family: 'Marcellus', serif;
+  font-size: 1.05rem; letter-spacing: 3px;
+  color: var(--gold2); line-height: 1;
+  text-transform: uppercase;
+}
+.header-sub {
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.55rem; letter-spacing: 2.5px;
+  color: rgba(232,204,122,0.45); text-transform: uppercase;
+  margin-top: 2px;
+}
+.team-chip {
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.62rem; letter-spacing: 2px; text-transform: uppercase;
+  background: rgba(184,146,58,0.18); border: 1px solid rgba(184,146,58,0.35);
+  color: var(--gold3); border-radius: 20px; padding: 4px 11px;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+}
+.gps-ring {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--gold2); flex-shrink: 0;
+  animation: gps-pulse 2s ease-in-out infinite;
+}
+.gps-ring.live  { background: #4ade80; animation: none; }
+.gps-ring.off   { background: #556; animation: none; }
+@keyframes gps-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.3;transform:scale(0.7)} }
+
+/* ─── PROGRESS ───────────────────────────────────────────── */
+.prog-wrap {
+  background: rgba(12,31,63,0.05); border-bottom: 1px solid var(--border);
+  padding: 16px 18px 10px; position: relative; z-index: 1;
+  display: none;
+}
+.prog-track {
+  display: flex; align-items: center; gap: 0; margin-bottom: 6px;
+}
+.prog-node {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  border: 2px solid var(--border);
+  background: var(--paper);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Josefin Sans', sans-serif; font-size: 0.65rem;
+  color: var(--muted); transition: all 0.4s; position: relative; z-index: 1;
+}
+.prog-node.done { background: var(--gold); border-color: var(--gold); color: white; }
+.prog-node.active { background: var(--navy); border-color: var(--navy); color: var(--gold2); box-shadow: 0 0 0 4px rgba(12,31,63,0.12); }
+.prog-line { flex: 1; height: 2px; background: var(--border); transition: background 0.4s; }
+.prog-line.done { background: var(--gold); }
+.prog-label {
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.62rem; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--muted); text-align: right;
+}
+
+/* ─── MAIN ───────────────────────────────────────────────── */
+main {
+  max-width: 600px; margin: 0 auto;
+  padding: 22px 14px 90px;
+  position: relative; z-index: 1;
+}
+
+/* ─── SCREENS ────────────────────────────────────────────── */
+.screen { display: none; }
+.screen.active { display: block; animation: screen-in 0.4s ease; }
+@keyframes screen-in { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+/* ─── START SCREEN ───────────────────────────────────────── */
+.start-hero { text-align: center; padding: 10px 0 28px; }
+.start-seal {
+  width: 90px; height: 90px; border-radius: 50%;
+  border: 1.5px solid var(--gold);
+  margin: 0 auto 20px;
+  background: radial-gradient(circle at 40% 35%, rgba(184,146,58,0.18), rgba(12,31,63,0.06));
+  box-shadow: 0 0 0 8px rgba(184,146,58,0.08), inset 0 0 20px rgba(184,146,58,0.06);
+  display: flex; align-items: center; justify-content: center;
+  animation: seal-breathe 4s ease-in-out infinite;
+}
+@keyframes seal-breathe {
+  0%,100% { box-shadow: 0 0 0 8px rgba(184,146,58,0.08), inset 0 0 20px rgba(184,146,58,0.06); }
+  50%      { box-shadow: 0 0 0 14px rgba(184,146,58,0.14), inset 0 0 28px rgba(184,146,58,0.1); }
+}
+.start-title {
+  font-family: 'Marcellus', serif;
+  font-size: 2.4rem; letter-spacing: 3px;
+  color: var(--navy); line-height: 1.1; margin-bottom: 6px;
+}
+.start-title em { color: var(--gold); font-style: normal; }
+.start-sub {
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.72rem; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 32px;
+}
+
+/* Team entry */
+.team-entry { margin-bottom: 10px; }
+.team-label {
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 6px;
+}
+.team-input-row { display: flex; gap: 8px; }
+.team-input {
+  flex: 1; background: rgba(255,255,255,0.7); border: 1.5px solid var(--border);
+  border-radius: 6px; padding: 10px 14px;
+  font-family: 'Cormorant Garamond', serif; font-size: 1.05rem;
+  color: var(--navy); outline: none; transition: border-color 0.2s;
+}
+.team-input:focus { border-color: var(--gold); }
+.team-input::placeholder { color: var(--muted); font-style: italic; }
+
+/* Cards */
+.card {
+  background: rgba(255,255,255,0.72); border: 1px solid var(--border);
+  border-radius: 14px; padding: 18px 20px;
+  box-shadow: var(--shadow); backdrop-filter: blur(8px);
+  margin-bottom: 14px;
+}
+.card-heading {
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 12px;
+  padding-bottom: 9px; border-bottom: 1px solid var(--border);
+}
+.rules-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.rules-list li {
+  font-size: 1rem; color: var(--muted);
+  padding-left: 18px; position: relative; line-height: 1.5;
+}
+.rules-list li::before { content:'›'; position:absolute; left:0; color:var(--gold); font-size:1.1rem; line-height:1.4; }
+
+/* Stops preview list */
+.stops-preview { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+.stops-preview li { display: flex; align-items: center; gap: 12px; }
+.sp-icon { width: 32px; height: 32px; border-radius: 50%; background: var(--navy); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.sp-name { font-weight: 600; font-size: 1rem; color: var(--navy); line-height: 1.2; }
+.sp-theme { font-size: 0.85rem; color: var(--muted); font-style: italic; }
+
+/* CTA Button */
+.btn-primary {
+  display: block; width: 100%;
+  background: var(--navy); color: var(--gold3);
+  border: none; border-radius: 8px;
+  padding: 14px 24px;
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.8rem; letter-spacing: 3px; text-transform: uppercase;
+  cursor: pointer; transition: background 0.2s, transform 0.1s;
+  text-align: center;
+}
+.btn-primary:hover { background: var(--navy2); }
+.btn-primary:active { transform: scale(0.98); }
+.btn-ghost {
+  display: inline-block;
+  background: transparent; color: var(--navy);
+  border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 10px 22px;
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s;
+}
+.btn-ghost:hover { background: rgba(12,31,63,0.06); }
+
+/* ─── GAME SCREEN ────────────────────────────────────────── */
+.demo-banner {
+  background: rgba(184,146,58,0.14); border: 1px solid rgba(184,146,58,0.4);
+  border-radius: 8px; padding: 10px 16px; margin-bottom: 16px;
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.68rem; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--navy); text-align: center; display: none;
+}
+
+/* ─── MISSION CARD ───────────────────────────────────────── */
+.mission-card {
+  background: rgba(255,255,255,0.76); border: 1px solid var(--border);
+  border-radius: 16px; overflow: hidden;
+  box-shadow: var(--shadow); backdrop-filter: blur(8px);
+  margin-bottom: 16px; transition: opacity 0.4s;
+}
+.mc-head {
+  background: var(--navy); padding: 14px 18px;
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+}
+.mc-head-left { display: flex; align-items: flex-start; gap: 12px; }
+.mc-stop-icon {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: rgba(184,146,58,0.15); border: 1.5px solid rgba(184,146,58,0.35);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.mc-label {
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.56rem; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold2); margin-bottom: 3px;
+}
+.mc-name {
+  font-family: 'Marcellus', serif; font-size: 1.12rem;
+  color: #fff; line-height: 1.2;
+}
+.mc-badge {
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.58rem; letter-spacing: 1.5px; text-transform: uppercase;
+  background: rgba(184,146,58,0.2); border: 1px solid rgba(184,146,58,0.38);
+  color: var(--gold3); padding: 3px 9px; border-radius: 4px;
+  white-space: nowrap; flex-shrink: 0; margin-top: 2px;
+}
+.mc-body { padding: 18px; }
+
+/* ─── HEARTBEAT PROXIMITY ────────────────────────────────── */
+.heartbeat-block {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 20px 0 10px; margin-bottom: 8px;
+}
+.hb-ring-wrap {
+  position: relative; width: 80px; height: 80px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 10px;
+}
+.hb-ring {
+  position: absolute; border-radius: 50%;
+  border: 2px solid var(--gold2); opacity: 0;
+  animation: hb-ripple var(--hb-speed, 2.5s) ease-out infinite;
+}
+.hb-ring:nth-child(1) { width: 100%; height: 100%; animation-delay: 0s; }
+.hb-ring:nth-child(2) { width: 75%;  height: 75%;  animation-delay: calc(var(--hb-speed,2.5s) * -0.33); }
+.hb-ring:nth-child(3) { width: 50%;  height: 50%;  animation-delay: calc(var(--hb-speed,2.5s) * -0.66); }
+@keyframes hb-ripple {
+  0%   { transform: scale(0.5); opacity: 0.8; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+.hb-core {
+  width: 28px; height: 28px; border-radius: 50%; position: relative; z-index: 2;
+  background: var(--gold2);
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.6s, transform 0.3s;
+}
+.hb-core svg { display: block; }
+.hb-status-text {
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase;
+  text-align: center; margin-bottom: 4px;
+}
+.hb-dist {
+  font-family: 'Marcellus', serif; font-size: 1.6rem;
+  color: var(--navy); text-align: center; line-height: 1;
+}
+.hb-dist small {
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.65rem; letter-spacing: 1.5px; color: var(--muted); margin-left: 3px;
+}
+
+/* Temp colors */
+.temp-frigid  { --hb-col: #4a90d9; } /* >400m */
+.temp-cold    { --hb-col: #5ba8e0; } /* 300-400 */
+.temp-cool    { --hb-col: #64b5c8; } /* 200-300 */
+.temp-neutral { --hb-col: #c8a84b; } /* 150-200 */
+.temp-warm    { --hb-col: #e07b3a; } /* 80-150  */
+.temp-hot     { --hb-col: #c0392b; } /* <80m   */
+
+.temp-frigid  .hb-ring, .temp-cold .hb-ring   { border-color: #4a90d9; }
+.temp-cool    .hb-ring, .temp-neutral .hb-ring { border-color: #64b5c8; }
+.temp-warm    .hb-ring                         { border-color: #e07b3a; }
+.temp-hot     .hb-ring                         { border-color: #c0392b; }
+.temp-frigid  .hb-core, .temp-cold .hb-core    { background: #4a90d9; }
+.temp-cool    .hb-core                         { background: #64b5c8; }
+.temp-neutral .hb-core                         { background: #c8a84b; }
+.temp-warm    .hb-core                         { background: #e07b3a; }
+.temp-hot     .hb-core                         { background: #c0392b; }
+
+.temp-frigid  .hb-status-text { color: #4a90d9; }
+.temp-cold    .hb-status-text { color: #5ba8e0; }
+.temp-cool    .hb-status-text { color: #64b5c8; }
+.temp-neutral .hb-status-text { color: #c8a84b; }
+.temp-warm    .hb-status-text { color: #e07b3a; }
+.temp-hot     .hb-status-text { color: #c0392b; }
+
+/* Heartbeat speed classes */
+.speed-1 { --hb-speed: 3.2s; }
+.speed-2 { --hb-speed: 2.4s; }
+.speed-3 { --hb-speed: 1.8s; }
+.speed-4 { --hb-speed: 1.2s; }
+.speed-5 { --hb-speed: 0.75s; }
+.speed-6 { --hb-speed: 0.45s; }
+
+/* Lock state */
+.lock-msg-block { text-align: center; padding: 6px 0 12px; }
+.lock-icon-svg { margin: 0 auto 8px; opacity: 0.5; }
+.lock-text {
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.66rem; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--muted); line-height: 1.7;
+}
+
+/* Sim button */
+.sim-btn {
+  display: none; width: 100%; margin-bottom: 12px;
+  background: transparent; color: var(--navy);
+  border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 10px 16px;
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s;
+}
+.sim-btn:hover { background: rgba(12,31,63,0.05); }
+
+/* ─── UNLOCKED CONTENT ───────────────────────────────────── */
+.unlocked-block { display: none; }
+.unlocked-block.show { display: block; animation: screen-in 0.4s ease; }
+
+.divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+.scripture-card {
+  background: linear-gradient(135deg, rgba(12,31,63,0.04), rgba(184,146,58,0.07));
+  border-left: 3px solid var(--gold); border-radius: 0 10px 10px 0;
+  padding: 14px 16px; margin-bottom: 16px;
+}
+.scripture-ref {
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.6rem; letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 5px;
+}
+.scripture-text { font-size: 1.05rem; font-style: italic; line-height: 1.65; }
+
+.principle-block { margin-bottom: 16px; }
+.block-label {
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.6rem; letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 7px;
+  display: flex; align-items: center; gap: 7px;
+}
+.block-label::after { content:''; flex:1; height:1px; background:var(--border); }
+.principle-text { font-size: 1rem; line-height: 1.7; }
+
+.tasks-grid { display: flex; flex-direction: column; gap: 9px; margin-bottom: 16px; }
+.task-row {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: rgba(255,255,255,0.6); border: 1px solid var(--border);
+  border-radius: 10px; padding: 11px 13px;
+}
+.task-icon-wrap {
+  width: 34px; height: 34px; border-radius: 8px;
+  background: var(--navy); display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.task-kind {
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.58rem; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 2px;
+}
+.task-desc { font-size: 0.95rem; line-height: 1.5; }
+
+.disc-block { margin-bottom: 16px; }
+.disc-q {
+  display: flex; gap: 10px; align-items: flex-start;
+  margin-bottom: 8px; font-size: 0.98rem; line-height: 1.55;
+}
+.disc-q-num {
+  font-family: 'Josefin Sans', sans-serif; font-size: 0.6rem;
+  letter-spacing: 1px; color: var(--gold); margin-top: 4px; flex-shrink: 0;
+}
+
+/* AI block */
+.ai-block { margin-bottom: 6px; }
+.ai-label {
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.6rem; letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 8px;
+  display: flex; align-items: center; gap: 7px;
+}
+.ai-label::after { content:''; flex:1; height:1px; background:var(--border); }
+.ai-box {
+  background: rgba(12,31,63,0.04); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px 16px; min-height: 60px;
+  font-size: 1rem; line-height: 1.7; font-style: italic;
+}
+.ai-thinking {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.68rem; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--muted); font-style: normal;
+}
+.dot-trio span {
+  display: inline-block; width: 5px; height: 5px; border-radius: 50%;
+  background: var(--gold); margin-right: 3px;
+  animation: dot-bounce 0.9s ease-in-out infinite;
+}
+.dot-trio span:nth-child(2){animation-delay:.18s}
+.dot-trio span:nth-child(3){animation-delay:.36s}
+@keyframes dot-bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
+
+/* Complete button */
+.complete-btn {
+  width: 100%; margin-top: 8px;
+  background: var(--navy); color: var(--gold3);
+  border: none; border-radius: 8px; padding: 14px 20px;
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.75rem; letter-spacing: 2.5px; text-transform: uppercase;
+  cursor: pointer; transition: background 0.2s, transform 0.1s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.complete-btn:hover { background: var(--navy2); }
+.complete-btn:active { transform: scale(0.98); }
+
+/* Done banner */
+.done-banner {
+  display: none; align-items: center; gap: 8px;
+  background: var(--green); color: #fff;
+  padding: 9px 14px; border-radius: 8px; margin-bottom: 14px;
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.66rem; letter-spacing: 2px; text-transform: uppercase;
+}
+.done-banner.show { display: flex; }
+
+/* ─── FULLSCREEN PROMPT ──────────────────────────────────── */
+#fullscreen-prompt {
+  position: fixed; inset: 0; z-index: 9500;
+  background: rgba(12,31,63,0.97);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 20px; padding: 32px 24px;
+  text-align: center;
+  animation: fade-up 0.4s ease;
+}
+.fs-icon { font-size: 3rem; margin-bottom: 4px; }
+.fs-title {
+  font-family: 'Marcellus', serif; font-size: 1.5rem;
+  letter-spacing: 2px; color: #fff; margin-bottom: 4px;
+}
+.fs-body {
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.72rem; letter-spacing: 1.5px; line-height: 1.9;
+  color: rgba(255,255,255,0.5); text-transform: uppercase;
+  max-width: 280px;
+}
+.fs-steps {
+  display: flex; flex-direction: column; gap: 10px;
+  width: 100%; max-width: 300px;
+  margin: 4px 0;
+}
+.fs-step {
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; padding: 10px 14px; text-align: left;
+}
+.fs-step-num {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--gold); color: #000;
+  font-family: 'Josefin Sans', sans-serif; font-size: 0.68rem; font-weight: 600;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.fs-step-text {
+  font-family: 'Josefin Sans', sans-serif; font-size: 0.68rem;
+  letter-spacing: 1px; color: rgba(255,255,255,0.6); line-height: 1.5;
+}
+.fs-btn {
+  background: var(--gold); color: #000;
+  border: none; border-radius: 8px; padding: 13px 32px;
+  font-family: 'Josefin Sans', sans-serif; font-size: 0.75rem;
+  letter-spacing: 2.5px; text-transform: uppercase;
+  cursor: pointer; font-weight: 600;
+  transition: background 0.2s;
+}
+.fs-btn:hover { background: var(--gold2); }
+.fs-skip-link {
+  font-family: 'Josefin Sans', sans-serif; font-size: 0.6rem;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: rgba(255,255,255,0.25); cursor: pointer; margin-top: -8px;
+}
+.fs-skip-link:hover { color: rgba(255,255,255,0.5); }
+
+/* ─── GPS TEST PANEL ─────────────────────────────────────── */
+#gps-test-panel {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 8000;
+  background: rgba(12,31,63,0.97);
+  border-top: 2px solid var(--gold);
+  padding: 14px 16px 24px;
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(.2,.8,.3,1);
+  max-height: 85vh; overflow-y: auto;
+}
+#gps-test-panel.open { transform: translateY(0); }
+.gps-panel-handle {
+  width: 36px; height: 4px; border-radius: 2px;
+  background: rgba(255,255,255,0.2); margin: 0 auto 14px;
+}
+.gps-panel-title {
+  font-family: 'Marcellus', serif; font-size: 1rem;
+  letter-spacing: 2px; color: var(--gold2); margin-bottom: 4px;
+}
+.gps-panel-sub {
+  font-family: 'Josefin Sans', sans-serif; font-size: 0.6rem;
+  letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.35);
+  margin-bottom: 16px;
+}
+.gps-status-row {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(255,255,255,0.06); border-radius: 8px;
+  padding: 10px 14px; margin-bottom: 12px;
+}
+.gps-status-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  background: #666;
+}
+.gps-status-dot.granted { background: #4ade80; }
+.gps-status-dot.denied  { background: #e74c3c; }
+.gps-status-dot.pending { background: var(--gold2); animation: blink 1s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+.gps-status-text {
+  font-family: 'Josefin Sans', sans-serif; font-size: 0.68rem;
+  letter-spacing: 1px; color: rgba(255,255,255,0.6);
+}
+.gps-coords {
+  font-family: 'Josefin Sans', sans-serif; font-size: 0.62rem;
+  letter-spacing: 1px; color: rgba(255,255,255,0.35); margin-top: 2px;
+}
+.gps-stop-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.gps-stop-row {
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(255,255,255,0.05); border-radius: 6px; padding: 8px 12px;
+}
+.gps-stop-name {
+  font-family: 'Josefin Sans', sans-serif; font-size: 0.65rem;
+  letter-spacing: 1px; color: rgba(255,255,255,0.55);
+}
+.gps-stop-dist {
+  font-family: 'Marcellus', serif; font-size: 0.9rem; color: var(--gold2);
+}
+.gps-stop-dist.unlocked { color: #4ade80; }
+.gps-panel-btn {
+  width: 100%; background: rgba(184,146,58,0.18);
+  border: 1px solid rgba(184,146,58,0.4); color: var(--gold3);
+  border-radius: 8px; padding: 11px 16px;
+  font-family: 'Josefin Sans', sans-serif; font-size: 0.68rem;
+  letter-spacing: 2px; text-transform: uppercase;
+  cursor: pointer; margin-bottom: 8px; transition: background 0.2s;
+}
+.gps-panel-btn:hover { background: rgba(184,146,58,0.28); }
+.gps-panel-close {
+  width: 100%; background: transparent; border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.4); border-radius: 8px; padding: 11px 16px;
+  font-family: 'Josefin Sans', sans-serif; font-size: 0.65rem;
+  letter-spacing: 2px; text-transform: uppercase; cursor: pointer; margin-top: 4px;
+}
+
+/* GPS test trigger button (shown in header during game) */
+#gps-test-btn {
+  display: none;
+  font-family: 'Josefin Sans', sans-serif; font-size: 0.6rem;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.45); border-radius: 4px; padding: 4px 9px;
+  cursor: pointer; margin-right: 6px;
+}
+
+/* ─── AMAZING RACE INTRO ─────────────────────────────────── */
+#intro-screen {
+  position: fixed; inset: 0; z-index: 9000;
+  background: #000;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  overflow: hidden;
+  font-family: 'Josefin Sans', sans-serif;
+}
+
+/* Scanline overlay */
+#intro-screen::after {
+  content: '';
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.08) 2px,
+    rgba(0,0,0,0.08) 4px
+  );
+}
+
+.intro-skip {
+  position: absolute; top: 18px; right: 18px; z-index: 20;
+  font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase;
+  color: rgba(255,255,255,0.35); cursor: pointer; padding: 6px 12px;
+  border: 1px solid rgba(255,255,255,0.15); border-radius: 4px;
+  transition: color 0.2s;
+}
+.intro-skip:hover { color: rgba(255,255,255,0.7); }
+
+/* Network bug — top left corner */
+.intro-bug {
+  position: absolute; top: 18px; left: 18px; z-index: 20;
+  display: flex; align-items: center; gap: 7px;
+}
+.intro-bug-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #e74c3c;
+  animation: bug-blink 1s ease-in-out infinite;
+}
+@keyframes bug-blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+.intro-bug-label {
+  font-size: 0.6rem; letter-spacing: 3px; text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+}
+
+/* Timer */
+.intro-timer {
+  position: absolute; top: 18px; right: 80px; z-index: 20;
+  font-size: 0.68rem; letter-spacing: 2px; color: rgba(255,255,255,0.4);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Stage system */
+.intro-stage {
+  position: absolute; inset: 0; z-index: 10;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+}
+.intro-stage.active { opacity: 1; pointer-events: auto; }
+
+/* Stage 1 — Logo slam */
+#stage-logo .logo-pre {
+  font-size: 0.7rem; letter-spacing: 6px; text-transform: uppercase;
+  color: rgba(255,255,255,0.4); margin-bottom: 12px;
+  animation: fade-up 0.5s 0.1s both;
+}
+#stage-logo .logo-main {
+  font-family: 'Marcellus', serif;
+  font-size: clamp(2.8rem, 10vw, 4.5rem);
+  letter-spacing: 6px; text-transform: uppercase;
+  color: #fff; line-height: 1;
+  animation: logo-slam 0.4s 0.3s cubic-bezier(.2,.8,.3,1.3) both;
+  text-shadow: 0 0 60px rgba(212,168,75,0.5);
+}
+#stage-logo .logo-main em {
+  color: var(--gold2); font-style: normal;
+  display: block; font-size: 1.15em; letter-spacing: 8px;
+}
+#stage-logo .logo-sub {
+  font-size: 0.65rem; letter-spacing: 4px; text-transform: uppercase;
+  color: rgba(255,255,255,0.35); margin-top: 14px;
+  animation: fade-up 0.5s 0.6s both;
+}
+.logo-line {
+  width: 0; height: 1px; background: var(--gold2); margin: 14px auto;
+  animation: line-grow 0.6s 0.5s ease both;
+}
+@keyframes logo-slam {
+  0%  { transform: scale(1.6); opacity: 0; }
+  60% { transform: scale(0.97); opacity: 1; }
+  80% { transform: scale(1.02); }
+  100%{ transform: scale(1); opacity: 1; }
+}
+@keyframes line-grow { from{width:0} to{width:120px} }
+@keyframes fade-up { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+/* Stage 2 — Stats */
+#stage-stats {
+  gap: 0;
+  background: linear-gradient(180deg, rgba(184,146,58,0.06) 0%, transparent 100%);
+}
+.stats-eyebrow {
+  font-size: 0.6rem; letter-spacing: 4px; text-transform: uppercase;
+  color: rgba(255,255,255,0.35); margin-bottom: 28px;
+  animation: fade-up 0.4s 0.1s both;
+}
+.stat-rows { display: flex; flex-direction: column; gap: 0; width: 100%; max-width: 320px; }
+.stat-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 24px; border-bottom: 1px solid rgba(255,255,255,0.07);
+  opacity: 0; transform: translateX(-20px);
+}
+.stat-row.pop { animation: stat-pop 0.35s ease forwards; }
+@keyframes stat-pop {
+  to { opacity: 1; transform: translateX(0); }
+}
+.stat-label { font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+.stat-value { font-family: 'Marcellus', serif; font-size: 1.6rem; color: var(--gold2); }
+.stat-value small { font-family: 'Josefin Sans', sans-serif; font-size: 0.55rem; letter-spacing: 2px; color: rgba(255,255,255,0.3); margin-left: 4px; }
+
+/* Stage 3 — Location flash cards */
+#stage-locations { background: #000; gap: 0; }
+.loc-flash {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  opacity: 0;
+}
+.loc-flash.show { animation: loc-cut 0.55s ease both; }
+@keyframes loc-cut {
+  0%  { opacity: 0; transform: scale(1.04); }
+  15% { opacity: 1; transform: scale(1); }
+  80% { opacity: 1; }
+  100%{ opacity: 0; }
+}
+.loc-num {
+  font-size: 0.55rem; letter-spacing: 4px; text-transform: uppercase;
+  color: var(--gold2); margin-bottom: 8px;
+}
+.loc-name {
+  font-family: 'Marcellus', serif;
+  font-size: clamp(1.6rem, 6vw, 2.4rem);
+  letter-spacing: 3px; color: #fff; text-align: center; line-height: 1.2;
+}
+.loc-theme {
+  font-size: 0.62rem; letter-spacing: 2px; text-transform: uppercase;
+  color: rgba(255,255,255,0.35); margin-top: 10px;
+}
+.loc-bar {
+  position: absolute; bottom: 0; left: 0;
+  height: 2px; background: var(--gold2);
+  animation: loc-bar-fill 0.55s ease both;
+}
+@keyframes loc-bar-fill { from{width:0} to{width:100%} }
+.loc-stripe {
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--gold), var(--gold2), var(--gold3), var(--gold2), var(--gold));
+  background-size: 200% 100%;
+  animation: stripe-slide 1s linear infinite;
+}
+@keyframes stripe-slide { from{background-position:0 0} to{background-position:200% 0} }
+
+/* Stage 4 — GO */
+#stage-go { background: #000; }
+.go-eyebrow {
+  font-size: 0.62rem; letter-spacing: 5px; text-transform: uppercase;
+  color: rgba(255,255,255,0.4); margin-bottom: 16px;
+  animation: fade-up 0.3s 0.1s both;
+}
+.go-word {
+  font-family: 'Marcellus', serif;
+  font-size: clamp(5rem, 22vw, 9rem);
+  letter-spacing: 8px; color: var(--gold2); line-height: 1;
+  animation: go-slam 0.4s 0.2s cubic-bezier(.1,.9,.3,1.4) both;
+  text-shadow: 0 0 80px rgba(212,168,75,0.7), 0 0 160px rgba(212,168,75,0.3);
+}
+@keyframes go-slam {
+  0%  { transform: scale(3); opacity: 0; }
+  60% { transform: scale(0.96); opacity: 1; }
+  80% { transform: scale(1.02); }
+  100%{ transform: scale(1); }
+}
+.go-sub {
+  font-size: 0.68rem; letter-spacing: 4px; text-transform: uppercase;
+  color: rgba(255,255,255,0.4); margin-top: 12px;
+  animation: fade-up 0.4s 0.5s both;
+}
+.go-flash {
+  position: absolute; inset: 0;
+  background: #fff; opacity: 0;
+  animation: go-flash 0.15s 0.18s ease-out both;
+}
+@keyframes go-flash { 0%{opacity:0.5} 100%{opacity:0} }
+
+/* ─── TASK CHECKLIST ─────────────────────────────────────── */
+.task-row {
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  position: relative;
+  align-items: center;
+}
+.task-row.checked {
+  background: rgba(42,94,68,0.1);
+  border-color: rgba(42,94,68,0.3);
+}
+/* Icon wrap becomes the checkbox */
+.task-icon-wrap {
+  position: relative;
+  transition: background 0.25s, transform 0.15s;
+  border: 2px solid rgba(255,255,255,0.15);
+}
+.task-row.checked .task-icon-wrap {
+  background: var(--green) !important;
+  border-color: var(--green);
+  transform: scale(1.05);
+}
+/* The SVG icon inside fades out when checked */
+.task-icon-wrap .task-svg-icon {
+  transition: opacity 0.2s;
+}
+.task-row.checked .task-icon-wrap .task-svg-icon {
+  opacity: 0;
+}
+/* Checkmark overlay — hidden until checked */
+.task-icon-wrap .task-check-overlay {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.2s;
+}
+.task-row.checked .task-icon-wrap .task-check-overlay {
+  opacity: 1;
+}
+/* Task text strikethrough when done */
+.task-row.checked .task-desc {
+  opacity: 0.5;
+  text-decoration: line-through;
+  text-decoration-color: var(--green);
+}
+.task-row.checked .task-kind { opacity: 0.5; }
+
+/* Complete button locked state */
+.complete-btn:disabled {
+  background: var(--muted); cursor: not-allowed; opacity: 0.45;
+}
+.complete-btn-hint {
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.6rem; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--muted); text-align: center; margin-top: 6px;
+  transition: color 0.3s;
+}
+
+/* ─── SWIPE UP TO BEGIN ──────────────────────────────────── */
+.swipe-up-area {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: flex-end;
+  padding-bottom: 48px; gap: 16px; width: 100%;
+  cursor: pointer; user-select: none;
+}
+.swipe-arrow-wrap {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.swipe-chevron {
+  width: 32px; height: 18px; opacity: 0;
+  animation: chevron-rise 1.6s ease-in-out infinite;
+}
+.swipe-chevron:nth-child(1) { animation-delay: 0s; }
+.swipe-chevron:nth-child(2) { animation-delay: 0.22s; }
+.swipe-chevron:nth-child(3) { animation-delay: 0.44s; }
+@keyframes chevron-rise {
+  0%   { opacity: 0; transform: translateY(6px); }
+  40%  { opacity: 0.9; }
+  80%  { opacity: 0; transform: translateY(-6px); }
+  100% { opacity: 0; }
+}
+.swipe-label {
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase;
+  color: rgba(255,255,255,0.45); margin-top: 6px;
+}
+
+/* Stage GO — full height layout */
+#stage-go {
+  background: #000;
+  justify-content: space-between;
+  padding: 80px 24px 0;
+}
+.go-content { text-align: center; }
+
+/* ─── INTRO STAGE-LOGO BEGIN BUTTON ─────────────────────── */
+.intro-begin-btn {
+  margin-top: 24px;
+  background: transparent;
+  border: 1.5px solid rgba(200,168,75,0.5);
+  color: var(--gold2);
+  border-radius: 8px; padding: 12px 36px;
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s;
+  animation: fade-up 0.5s 0.9s both;
+}
+.intro-begin-btn:hover {
+  background: rgba(200,168,75,0.12);
+  border-color: var(--gold2);
+}
+
+/* ─── PRINCIPLE CARDS — tap to advance ──────────────────── */
+.principle-nav {
+  position: absolute; bottom: 24px; left: 0; right: 0;
+  display: flex; justify-content: center; gap: 6px;
+}
+.p-pip {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(255,255,255,0.2); transition: background 0.3s;
+}
+.p-pip.active { background: var(--gold2); transform: scale(1.3); }
+.p-pip.done   { background: rgba(212,168,75,0.45); }
+.tap-hint {
+  position: absolute; bottom: 48px; left: 0; right: 0;
+  text-align: center;
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.58rem; letter-spacing: 2px; text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+  animation: fade-up 0.5s 0.8s both;
+}
+
+/* ─── FUTURE STOP (sealed) ───────────────────────────────── */
+.mission-card.sealed .mc-head { background: #1a2a40; }
+.mission-card.sealed .mc-name { color: rgba(255,255,255,0.35); letter-spacing: 4px; font-style: italic; }
+.mission-card.sealed .mc-label { opacity: 0.4; }
+.mission-card.sealed .mc-badge { opacity: 0; }
+.sealed-body {
+  padding: 28px 18px;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.sealed-lock {
+  width: 52px; height: 52px; border-radius: 50%;
+  border: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(12,31,63,0.04);
+  opacity: 0.45;
+}
+.sealed-text {
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.62rem; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--muted); text-align: center; line-height: 1.8;
+}
+
+/* ─── FULLSCREEN ARRIVAL BURST ───────────────────────────── */
+#arrival-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  pointer-events: none; display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.burst-ring {
+  position: absolute; border-radius: 50%;
+  border: 3px solid var(--gold2); opacity: 0;
+}
+.burst-ring:nth-child(1) { width: 80px;  height: 80px;  animation: burst 0.9s ease-out forwards; }
+.burst-ring:nth-child(2) { width: 80px;  height: 80px;  animation: burst 0.9s 0.12s ease-out forwards; }
+.burst-ring:nth-child(3) { width: 80px;  height: 80px;  animation: burst 0.9s 0.24s ease-out forwards; }
+.burst-ring:nth-child(4) { width: 80px;  height: 80px;  animation: burst 0.9s 0.36s ease-out forwards; }
+@keyframes burst {
+  0%   { transform: scale(0.2); opacity: 0.9; border-color: var(--gold2); }
+  60%  { opacity: 0.5; }
+  100% { transform: scale(10); opacity: 0; }
+}
+.burst-flash {
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(212,168,75,0.35) 0%, transparent 70%);
+  animation: flash-fade 0.7s ease-out forwards;
+}
+@keyframes flash-fade { 0%{opacity:1} 100%{opacity:0} }
+.burst-text {
+  position: relative; z-index: 2;
+  font-family: 'Marcellus', serif; font-size: 1.6rem; letter-spacing: 4px;
+  color: var(--gold2); text-align: center;
+  animation: burst-text-in 1.1s ease forwards;
+  text-shadow: 0 0 30px rgba(212,168,75,0.6);
+}
+@keyframes burst-text-in {
+  0%   { transform: scale(0.5); opacity: 0; }
+  30%  { transform: scale(1.08); opacity: 1; }
+  70%  { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+/* ─── STAMP COMPLETE ANIMATION ───────────────────────────── */
+#stamp-overlay {
+  position: fixed; inset: 0; z-index: 9998;
+  pointer-events: none; display: flex; align-items: center; justify-content: center;
+}
+.stamp-seal {
+  width: 160px; height: 160px; border-radius: 50%;
+  border: 5px solid var(--green); background: rgba(42,94,68,0.92);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  opacity: 0; transform: scale(2.5) rotate(-15deg);
+  animation: stamp-in 0.55s cubic-bezier(.2,.8,.3,1.3) forwards;
+}
+@keyframes stamp-in {
+  0%   { opacity: 0; transform: scale(2.5) rotate(-15deg); }
+  60%  { opacity: 1; transform: scale(0.95) rotate(2deg); }
+  80%  { transform: scale(1.04) rotate(-1deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+.stamp-seal.stamp-out {
+  animation: stamp-fade 0.35s 0.9s ease-in forwards;
+}
+@keyframes stamp-fade { to { opacity: 0; transform: scale(0.85); } }
+.stamp-word {
+  font-family: 'Marcellus', serif; font-size: 1.5rem; letter-spacing: 5px;
+  color: #fff; text-transform: uppercase;
+}
+.stamp-sub {
+  font-family: 'Josefin Sans', sans-serif; font-size: 0.6rem;
+  letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.65);
+}
+
+/* ─── NEXT CARD REVEAL ───────────────────────────────────── */
+.mission-card.revealing {
+  animation: card-reveal 0.7s 1.4s cubic-bezier(.2,.8,.3,1.1) both;
+}
+@keyframes card-reveal {
+  0%   { opacity: 0; transform: translateY(30px) scale(0.96); }
+  60%  { transform: translateY(-4px) scale(1.01); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ─── WIN SCREEN ─────────────────────────────────────────── */
+#screen-win { text-align: center; }
+.win-seal {
+  width: 100px; height: 100px; border-radius: 50%;
+  border: 2px solid var(--gold); margin: 10px auto 20px;
+  background: radial-gradient(circle, rgba(184,146,58,0.2), rgba(12,31,63,0.08));
+  box-shadow: 0 0 0 10px rgba(184,146,58,0.1);
+  display: flex; align-items: center; justify-content: center;
+  animation: seal-win 0.6s cubic-bezier(.2,.8,.3,1.4);
+}
+@keyframes seal-win { from{transform:scale(0.5);opacity:0} to{transform:scale(1);opacity:1} }
+.win-title {
+  font-family: 'Marcellus', serif; font-size: 2.4rem;
+  color: var(--navy); letter-spacing: 2px; margin-bottom: 6px;
+}
+.win-title em { color: var(--gold); font-style: normal; }
+.win-sub { font-size: 1rem; color: var(--muted); font-style: italic; margin-bottom: 28px; }
+.win-list { list-style: none; text-align: left; }
+.win-list li {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 0; border-bottom: 1px solid var(--border);
+  font-size: 1rem;
+}
+.win-list li:last-child { border: none; }
+.win-check-icon { flex-shrink: 0; }
+.win-stop-name { font-weight: 600; }
+.win-stop-theme { font-size: 0.9rem; color: var(--muted); font-style: italic; }
+</style>
+</head>
+<body>
+
+<!-- ── FULLSCREEN PROMPT ──────────────────────────────────── -->
+<div id="fullscreen-prompt" style="display:none">
+  <div class="fs-icon">📱</div>
+  <div class="fs-title">Add to Home Screen</div>
+  <div class="fs-body">For the best experience, install this as an app on your phone</div>
+  <div class="fs-steps" id="fs-steps">
+    <!-- populated by JS based on device -->
+  </div>
+  <button class="fs-btn" onclick="dismissFullscreen()">Got It — Let's Go</button>
+  <div class="fs-skip-link" onclick="dismissFullscreen()">Skip for now</div>
+</div>
+
+<!-- ── GPS TEST PANEL ─────────────────────────────────────── -->
+<div id="gps-test-panel">
+  <div class="gps-panel-handle"></div>
+  <div class="gps-panel-title">GPS Diagnostics</div>
+  <div class="gps-panel-sub">Location permission &amp; distance tester</div>
+
+  <div class="gps-status-row">
+    <div class="gps-status-dot" id="diag-dot"></div>
+    <div>
+      <div class="gps-status-text" id="diag-status">Checking…</div>
+      <div class="gps-coords" id="diag-coords">—</div>
+    </div>
+  </div>
+
+  <div class="gps-stop-list" id="diag-stop-list">
+    <div style="font-family:'Josefin Sans',sans-serif;font-size:0.62rem;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.25);padding:4px 0;">Start a hunt to see distances</div>
+  </div>
+
+  <button class="gps-panel-btn" onclick="diagRequestGPS()">Request Location Permission</button>
+  <button class="gps-panel-btn" onclick="diagRefresh()">Refresh My Position</button>
+  <button class="gps-panel-close" onclick="closeGPSPanel()">Close</button>
+</div>
+
+<!-- ── AMAZING RACE INTRO ─────────────────────────────────── -->
+<div id="intro-screen">
+
+  <!-- Network bug + skip -->
+  <div class="intro-bug">
+    <div class="intro-bug-dot"></div>
+    <div class="intro-bug-label">Live</div>
+  </div>
+  <div class="intro-timer" id="intro-timer"></div>
+  <div class="intro-skip" onclick="skipIntro()">Skip ›</div>
+
+  <!-- Stage 1: Logo -->
+  <div class="intro-stage active" id="stage-logo">
+    <div class="logo-pre">For the Strength of Youth</div>
+    <div class="logo-main">
+      Field
+      <em>Mission</em>
+    </div>
+    <div class="logo-line"></div>
+    <div class="logo-sub">Heber City, Utah</div>
+    <button class="intro-begin-btn" onclick="introBegin()">Begin →</button>
+  </div>
+
+  <!-- Stage 2: Stats -->
+  <div class="intro-stage" id="stage-stats">
+    <div class="stats-eyebrow">Your Mission</div>
+    <div class="stat-rows" id="stat-rows">
+      <div class="stat-row" id="stat-0">
+        <div class="stat-label">Where</div>
+        <div class="stat-value" style="font-size:1.1rem;letter-spacing:2px">Heber City</div>
+      </div>
+      <div class="stat-row" id="stat-1">
+        <div class="stat-label">What</div>
+        <div class="stat-value" style="font-size:1rem;letter-spacing:2px;color:#e8cc7a">Strength of Youth</div>
+      </div>
+      <div class="stat-row" id="stat-2">
+        <div class="stat-label">How</div>
+        <div class="stat-value" style="font-size:1rem;letter-spacing:2px">GPS · Tasks · Reflection</div>
+      </div>
+      <div class="stat-row" id="stat-3">
+        <div class="stat-label">Goal</div>
+        <div class="stat-value" style="font-size:0.95rem;letter-spacing:1.5px;color:#e8cc7a">Live the Principles</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage 3: Principles — auto-advance like video -->
+  <div class="intro-stage" id="stage-locations">
+    <div class="loc-stripe"></div>
+    <div class="loc-stripe"></div>
+    <div class="loc-flash" id="loc-flash-0">
+      <div class="loc-num">Principle 01</div>
+      <div class="loc-name">Ordinances &amp;<br>Covenants</div>
+      <div class="loc-theme">Connect you to heaven</div>
+      <div class="loc-bar"></div>
+    </div>
+    <div class="loc-flash" id="loc-flash-1">
+      <div class="loc-num">Principle 02</div>
+      <div class="loc-name">God's Plan<br>Is for You</div>
+      <div class="loc-theme">Eternal perspective changes everything</div>
+      <div class="loc-bar"></div>
+    </div>
+    <div class="loc-flash" id="loc-flash-2">
+      <div class="loc-num">Principle 03</div>
+      <div class="loc-name">Help with<br>God's Work</div>
+      <div class="loc-theme">Your hands are needed</div>
+      <div class="loc-bar"></div>
+    </div>
+    <div class="loc-flash" id="loc-flash-3">
+      <div class="loc-num">Principle 04</div>
+      <div class="loc-name">Christ Will<br>Strengthen You</div>
+      <div class="loc-theme">You are never alone</div>
+      <div class="loc-bar"></div>
+    </div>
+    <div class="loc-flash" id="loc-flash-4">
+      <div class="loc-num">Principle 05</div>
+      <div class="loc-name">Walk in<br>God's Light</div>
+      <div class="loc-theme">Clarity comes from His light</div>
+      <div class="loc-bar"></div>
+    </div>
+    <div class="loc-flash" id="loc-flash-5">
+      <div class="loc-num">Principle 06</div>
+      <div class="loc-name">Love Your<br>Neighbor</div>
+      <div class="loc-theme">The greatest commandment in action</div>
+      <div class="loc-bar"></div>
+    </div>
+    <div class="loc-flash" id="loc-flash-6">
+      <div class="loc-num">Principle 07</div>
+      <div class="loc-name">Your Body<br>Is Sacred</div>
+      <div class="loc-theme">A temple — honor it</div>
+      <div class="loc-bar"></div>
+    </div>
+    <div class="loc-flash" id="loc-flash-7">
+      <div class="loc-num">Principle 08</div>
+      <div class="loc-name">Truth Sets<br>You Free</div>
+      <div class="loc-theme">Repentance is liberation</div>
+      <div class="loc-bar"></div>
+    </div>
+    <div class="principle-nav" id="principle-nav"></div>
+  </div>
+
+  <!-- Stage 4: GO — swipe up to begin -->
+  <div class="intro-stage" id="stage-go" onclick="endIntroFromSwipe()">
+    <div class="go-flash"></div>
+    <div class="go-content">
+      <div class="go-eyebrow">Your mission starts now</div>
+      <div class="go-word">GO!</div>
+      <div class="go-sub">May your team find strength in every step</div>
+    </div>
+    <div class="swipe-up-area" id="swipe-area">
+      <div class="swipe-arrow-wrap">
+        <svg class="swipe-chevron" viewBox="0 0 32 18" fill="none">
+          <path d="M2 16L16 4l14 12" stroke="#d4a84b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <svg class="swipe-chevron" viewBox="0 0 32 18" fill="none">
+          <path d="M2 16L16 4l14 12" stroke="#d4a84b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <svg class="swipe-chevron" viewBox="0 0 32 18" fill="none">
+          <path d="M2 16L16 4l14 12" stroke="#d4a84b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="swipe-label">Swipe up or tap to begin</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── HEADER ─────────────────────────────────────────────── -->
+<header class="app-header">
+  <div class="header-brand">
+    <div class="header-title">FSY Field Mission</div>
+    <div class="header-sub">Heber City · For the Strength of Youth</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:6px;">
+    <button id="gps-test-btn" onclick="openGPSPanel()">GPS Test</button>
+    <div class="team-chip" id="team-chip" onclick="refreshGPS()">
+      <div class="gps-ring" id="gps-ring"></div>
+      <span id="team-chip-label">GPS</span>
+    </div>
+  </div>
+</header>
+
+<!-- ── PROGRESS BAR ───────────────────────────────────────── -->
+<div class="prog-wrap" id="prog-wrap">
+  <div class="prog-track" id="prog-track"></div>
+  <div class="prog-label" id="prog-label"></div>
+</div>
+
+<!-- ── MAIN ───────────────────────────────────────────────── -->
+<main>
+
+  <!-- START SCREEN -->
+  <div class="screen active" id="screen-start">
+    <div class="start-hero">
+      <div class="start-seal" id="compass-seal">
+        <!-- Compass SVG — needle animates with phone heading -->
+        <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="22" cy="22" r="16" stroke="#c8a84b" stroke-width="1.5"/>
+          <!-- Cardinal marks -->
+          <line x1="22" y1="6" x2="22" y2="10" stroke="#c8a84b" stroke-width="1.2"/>
+          <line x1="22" y1="34" x2="22" y2="38" stroke="#c8a84b" stroke-width="1.2"/>
+          <line x1="6" y1="22" x2="10" y2="22" stroke="#c8a84b" stroke-width="1.2"/>
+          <line x1="34" y1="22" x2="38" y2="22" stroke="#c8a84b" stroke-width="1.2"/>
+          <!-- Rotating needle group -->
+          <g id="compass-needle" style="transform-origin:22px 22px; transform:rotate(0deg); transition:transform 0.3s ease;">
+            <polygon points="22,8 24.5,22 22,19 19.5,22" fill="#e8cc7a"/>
+            <polygon points="22,36 19.5,22 22,25 24.5,22" fill="#7a7060"/>
+          </g>
+          <circle cx="22" cy="22" r="3" fill="#c8a84b"/>
+        </svg>
+      </div>
+      <div class="start-title">FSY Field<br><em>Mission</em></div>
+      <div class="start-sub">Heber City · 5 Stops · Your Route</div>
+    </div>
+
+    <div class="card">
+      <div class="card-heading">Enter Your Team Name</div>
+      <div class="team-entry">
+        <div class="team-label">Team Name</div>
+        <div class="team-input-row">
+          <input class="team-input" id="team-name-input" type="text" placeholder="e.g. Team Moroni, The Stripling Warriors…" maxlength="30"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-heading">How It Works</div>
+      <ul class="rules-list">
+        <li>Your team gets a unique randomized route of <strong>5 stops</strong> from 8 possible locations</li>
+        <li>A <strong>heartbeat sensor</strong> pulses faster and turns warmer as you get closer to each stop</li>
+        <li>Each stop unlocks when you arrive within 150 meters — GPS required</li>
+        <li>Complete tasks, discuss, and let AI generate a reflection prompt at each location</li>
+        <li>Demo Mode is available if GPS isn't accessible</li>
+      </ul>
+    </div>
+
+    <button class="btn-primary" onclick="startHunt()">
+      Begin Mission →
+    </button>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div class="screen" id="screen-game">
+    <div class="demo-banner" id="demo-banner">
+      Demo Mode — GPS unavailable · Use "Simulate Arrival" to explore stops
+    </div>
+    <div id="stops-container"></div>
+  </div>
+
+  <!-- WIN SCREEN -->
+  <div class="screen" id="screen-win">
+    <div class="win-seal">
+      <!-- Trophy SVG -->
+      <svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M17 8h16v16a8 8 0 01-16 0V8z" stroke="#c8a84b" stroke-width="1.5" fill="rgba(184,146,58,0.15)"/>
+        <path d="M10 8h7v8a7 7 0 01-7-7V8z" stroke="#c8a84b" stroke-width="1.2"/>
+        <path d="M33 8h7v1a7 7 0 01-7 7V8z" stroke="#c8a84b" stroke-width="1.2"/>
+        <line x1="25" y1="32" x2="25" y2="40" stroke="#c8a84b" stroke-width="1.5"/>
+        <line x1="17" y1="40" x2="33" y2="40" stroke="#c8a84b" stroke-width="2"/>
+        <path d="M20 18l2.5 6 5.5.8-4 3.8.95 5.4L25 31.3l-4.95 2.7.95-5.4L17 24.8l5.5-.8z" fill="#c8a84b" stroke="none"/>
+      </svg>
+    </div>
+    <div class="win-title">Mission<br><em>Complete!</em></div>
+    <div class="win-sub" id="win-sub">Your team walked with purpose and faith.</div>
+
+    <div class="card" style="margin-bottom:16px;">
+      <div class="scripture-card" style="margin-bottom:0;">
+        <div class="scripture-ref">John 8:32</div>
+        <div class="scripture-text">"And ye shall know the truth, and the truth shall make you free."</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-heading">Stops Completed</div>
+      <ul class="win-list" id="win-list"></ul>
+    </div>
+
+    <div style="text-align:center;margin-top:14px;">
+      <button class="btn-ghost" onclick="restartHunt()">Start New Route</button>
+    </div>
+  </div>
+
+</main>
+
+<!-- ── SVG ICON DEFS (hidden, referenced by use) ─────────── -->
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Chapel / Church -->
+    <symbol id="icon-chapel" viewBox="0 0 24 24">
+      <path d="M12 2v4M10 4h4" stroke="#c8a84b" stroke-width="1.4" stroke-linecap="round"/>
+      <path d="M4 22V11l8-6 8 6v11" stroke="#c8a84b" stroke-width="1.4" stroke-linejoin="round" fill="none"/>
+      <rect x="9" y="15" width="6" height="7" stroke="#c8a84b" stroke-width="1.2" fill="none" rx="1"/>
+      <path d="M8 11h2v3H8zM14 11h2v3h-2z" stroke="#c8a84b" stroke-width="1" fill="rgba(184,146,58,0.2)"/>
+    </symbol>
+    <!-- Gravestone / Cemetery -->
+    <symbol id="icon-grave" viewBox="0 0 24 24">
+      <path d="M7 21V10a5 5 0 0110 0v11" stroke="#c8a84b" stroke-width="1.4" fill="none"/>
+      <line x1="4" y1="21" x2="20" y2="21" stroke="#c8a84b" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="12" y1="13" x2="12" y2="17" stroke="#c8a84b" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="10" y1="15" x2="14" y2="15" stroke="#c8a84b" stroke-width="1.2" stroke-linecap="round"/>
+    </symbol>
+    <!-- Food / Serving -->
+    <symbol id="icon-food" viewBox="0 0 24 24">
+      <path d="M8 3v5a4 4 0 008 0V3" stroke="#c8a84b" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      <line x1="12" y1="12" x2="12" y2="21" stroke="#c8a84b" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M3 8h2M19 8h2" stroke="#c8a84b" stroke-width="1.2" stroke-linecap="round"/>
+      <path d="M5 3v8a2 2 0 002 2h.5" stroke="#c8a84b" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+    </symbol>
+    <!-- Strength / Gym -->
+    <symbol id="icon-strength" viewBox="0 0 24 24">
+      <line x1="6" y1="12" x2="18" y2="12" stroke="#c8a84b" stroke-width="1.6" stroke-linecap="round"/>
+      <rect x="3" y="9" width="3" height="6" stroke="#c8a84b" stroke-width="1.3" rx="1" fill="none"/>
+      <rect x="18" y="9" width="3" height="6" stroke="#c8a84b" stroke-width="1.3" rx="1" fill="none"/>
+      <rect x="1" y="10" width="2" height="4" stroke="#c8a84b" stroke-width="1" rx="0.5" fill="none"/>
+      <rect x="21" y="10" width="2" height="4" stroke="#c8a84b" stroke-width="1" rx="0.5" fill="none"/>
+    </symbol>
+    <!-- Light Bulb -->
+    <symbol id="icon-light" viewBox="0 0 24 24">
+      <path d="M9 21h6M10 18h4M12 2a7 7 0 015.4 11.4c-.8 1-1.4 2-1.4 3.1V17H8v-.5c0-1.1-.6-2.1-1.4-3A7 7 0 0112 2z" stroke="#c8a84b" stroke-width="1.4" fill="none" stroke-linejoin="round"/>
+      <line x1="12" y1="6" x2="12" y2="10" stroke="#c8a84b" stroke-width="1.2" stroke-linecap="round" opacity=".6"/>
+    </symbol>
+    <!-- Heart / Neighbor -->
+    <symbol id="icon-heart" viewBox="0 0 24 24">
+      <path d="M12 21C12 21 3 15 3 9a5 5 0 019-3 5 5 0 019 3c0 6-9 12-9 12z" stroke="#c8a84b" stroke-width="1.4" fill="rgba(184,146,58,0.18)"/>
+    </symbol>
+    <!-- Clothing / Body Sacred -->
+    <symbol id="icon-clothes" viewBox="0 0 24 24">
+      <path d="M8 3l-5 4 3 1v13h12V8l3-1-5-4" stroke="#c8a84b" stroke-width="1.4" fill="none" stroke-linejoin="round"/>
+      <path d="M8 3a4 4 0 008 0" stroke="#c8a84b" stroke-width="1.3" fill="none"/>
+    </symbol>
+    <!-- Temple -->
+    <symbol id="icon-temple" viewBox="0 0 24 24">
+      <line x1="12" y1="2" x2="12" y2="6" stroke="#c8a84b" stroke-width="1.4" stroke-linecap="round"/>
+      <path d="M6 22V10h12v12" stroke="#c8a84b" stroke-width="1.4" fill="none" stroke-linejoin="round"/>
+      <path d="M3 10h18" stroke="#c8a84b" stroke-width="1.3" stroke-linecap="round"/>
+      <path d="M8 22v-5h8v5" stroke="#c8a84b" stroke-width="1.2" fill="none"/>
+      <path d="M9 7l3-3 3 3" stroke="#c8a84b" stroke-width="1.2" fill="none"/>
+    </symbol>
+    <!-- Lock -->
+    <symbol id="icon-lock" viewBox="0 0 24 24">
+      <rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.4" fill="none"/>
+      <path d="M8 11V7a4 4 0 018 0v4" stroke="currentColor" stroke-width="1.4" fill="none"/>
+      <circle cx="12" cy="16" r="1.5" fill="currentColor"/>
+    </symbol>
+    <!-- Check -->
+    <symbol id="icon-check" viewBox="0 0 24 24">
+      <path d="M5 12l5 5L19 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <!-- Camera -->
+    <symbol id="icon-camera" viewBox="0 0 24 24">
+      <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="currentColor" stroke-width="1.3" fill="none"/>
+      <circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="1.3" fill="none"/>
+    </symbol>
+    <!-- Book -->
+    <symbol id="icon-book" viewBox="0 0 24 24">
+      <path d="M4 19.5A2.5 2.5 0 016.5 17H20" stroke="currentColor" stroke-width="1.3" fill="none"/>
+      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" stroke="currentColor" stroke-width="1.3" fill="none"/>
+    </symbol>
+    <!-- Service / Hands -->
+    <symbol id="icon-service" viewBox="0 0 24 24">
+      <path d="M18 11V7a2 2 0 00-4 0v4M14 7V5a2 2 0 00-4 0v6M10 9V7a2 2 0 00-4 0v7a6 6 0 006 6h2a6 6 0 006-6v-1a2 2 0 00-4 0" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+    </symbol>
+    <!-- Chat / Discussion -->
+    <symbol id="icon-chat" viewBox="0 0 24 24">
+      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="currentColor" stroke-width="1.3" fill="none"/>
+    </symbol>
+    <!-- Music / Note -->
+    <symbol id="icon-music" viewBox="0 0 24 24">
+      <path d="M9 18V5l12-2v13" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+      <circle cx="6" cy="18" r="3" stroke="currentColor" stroke-width="1.3" fill="none"/>
+      <circle cx="18" cy="16" r="3" stroke="currentColor" stroke-width="1.3" fill="none"/>
+    </symbol>
+    <!-- Wrench / Tool -->
+    <symbol id="icon-wrench" viewBox="0 0 24 24">
+      <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z" stroke="currentColor" stroke-width="1.3" fill="none"/>
+    </symbol>
+    <!-- Heart pulse -->
+    <symbol id="icon-pulse" viewBox="0 0 24 24">
+      <path d="M22 12h-4l-3 9L9 3l-3 9H2" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- ── ARRIVAL BURST OVERLAY ─────────────────────────────── -->
+<div id="arrival-overlay" style="display:none">
+  <div class="burst-flash"></div>
+  <div class="burst-ring"></div>
+  <div class="burst-ring"></div>
+  <div class="burst-ring"></div>
+  <div class="burst-ring"></div>
+  <div class="burst-text" id="burst-text">You're Here!</div>
+</div>
+
+<!-- ── STAMP OVERLAY ─────────────────────────────────────── -->
+<div id="stamp-overlay" style="display:none">
+  <div class="stamp-seal" id="stamp-seal">
+    <div class="stamp-word">Complete</div>
+    <div class="stamp-sub">Well Done</div>
+  </div>
+</div>
+
+<!-- ── SCRIPT ─────────────────────────────────────────────── -->
+<script>
+// ── ALL 8 STOPS ──────────────────────────────────────────────
+const ALL_STOPS = [
+  {
+    id:'chapel', name:'The Chapel', iconId:'icon-chapel',
+    address:'1205 W 650 S, Heber City, UT 84032',
+    lat:40.4990, lng:-111.4338,
+    theme:'Ordinances & Covenants',
+    fsy_principle:'Ordinances and covenants give you access to God\'s blessings. When you take the sacrament, you are making covenants with God — and He is bound when you keep your side. These sacred commitments are the thread that connects you to heaven.',
+    scripture_ref:'D&C 82:10',
+    scripture_text:'I, the Lord, am bound when ye do what I say; but when ye do not what I say, ye have no promise.',
+    tasks:[
+      {iconId:'icon-camera',type:'Photo',desc:'Take a reverent selfie in front of or near the chapel. Show what reverence looks like to you.'},
+      {iconId:'icon-book',type:'Scripture',desc:'Read D&C 82:10 together. Discuss: what covenant have you made, and what has God promised you in return?'}
+    ],
+    discussion:[
+      'What covenant means the most to you personally right now, and why?',
+      'How does partaking of the sacrament feel different when you really think about what you\'re promising?'
+    ],
+    ai_prompt:'A group of LDS youth ages 12-18 is standing outside their chapel in Heber City, Utah. They just read D&C 82:10 about how the Lord is bound when we keep our covenants. Write a short, thoughtful reflection prompt (3-4 sentences flowing prose) that helps them personally connect the sacrament and baptismal covenants to everyday choices this week. Real, personal, encouraging — never preachy.'
+  },
+  {
+    id:'cemetery', name:'Heber Cemetery', iconId:'icon-grave',
+    address:'680 N 550 E, Heber City, UT 84032',
+    lat:40.5165, lng:-111.4017,
+    theme:'God\'s Plan Is for You',
+    fsy_principle:'God\'s plan is for you. Whenever you face temptations, trials, or hard choices, remind yourself of His eternal plan. See how the truths you know about eternity can help you look at your challenges differently — this life is a very small part of your eternal story.',
+    scripture_ref:'Mosiah 2:41',
+    scripture_text:'I would desire that ye should consider on the blessed and happy state of those that keep the commandments of God. For behold, they are blessed in all things, both temporal and spiritual.',
+    tasks:[
+      {iconId:'icon-grave',type:'Observation',desc:'Find a gravestone from the 1800s. Look at the dates. What does a single lifespan teach you about eternity and what really matters?'},
+      {iconId:'icon-camera',type:'Photo',desc:'Take a group photo near the oldest gravestone you can find.'},
+      {iconId:'icon-chat',type:'Discussion',desc:'Read Mosiah 2:41 together. How does believing in eternal life change how you face a hard day?'}
+    ],
+    discussion:[
+      'How does it feel knowing that this life is a tiny part of your eternal existence?',
+      'What challenge are you facing right now that looks different through an eternal lens?'
+    ],
+    ai_prompt:'A group of LDS youth ages 12-18 is standing in the Heber City Cemetery surrounded by gravestones from the 1800s. They just read Mosiah 2:41. Write a short genuine reflection prompt (3-4 sentences) helping them connect the reality of mortality and eternal life to choices they\'re making now as teenagers. Thoughtful and grounded.'
+  },
+  {
+    id:'pantry', name:'Food Pantry', iconId:'icon-food',
+    address:'55 E Center St #180, Heber City, UT 84032',
+    lat:40.508486, lng:-111.412032,
+    theme:'You Can Help with God\'s Work',
+    fsy_principle:'You can help with God\'s work. Find ways to serve and minister to others — your family, your friends, your community. God needs your hands, your time, and your willingness to show up.',
+    scripture_ref:'Matthew 25:40',
+    scripture_text:'Inasmuch as ye have done it unto one of the least of these my brethren, ye have done it unto me.',
+    tasks:[
+      {iconId:'icon-service',type:'Service',desc:'If the pantry is open, ask how you can help — carry boxes, stock shelves, or thank those who run it. If closed, pick up litter nearby as a group.'},
+      {iconId:'icon-chat',type:'Discussion',desc:'Talk about fasting and fast offerings. What does it mean to go without so others can have?'},
+      {iconId:'icon-camera',type:'Photo',desc:'Take a photo of your group doing something service-oriented here.'}
+    ],
+    discussion:[
+      'When did you last do something for someone who couldn\'t repay you? How did it feel?',
+      'How is serving others the same as serving God, according to Matthew 25:40?'
+    ],
+    ai_prompt:'A group of LDS youth ages 12-18 is standing near a food pantry in Heber City. They just read Matthew 25:40. Write a brief genuine reflection prompt (3-4 sentences) inviting them to think about one specific person in their life who needs their help, and what it would mean to act. Personal and actionable.'
+  },
+  {
+    id:'gym', name:'Fit Stop / Anytime Fitness', iconId:'icon-strength',
+    address:'1099 S Main St Suite 160, Heber City, UT 84032',
+    lat:40.4938, lng:-111.4122,
+    theme:'Jesus Christ Will Help You',
+    fsy_principle:'Jesus Christ will strengthen you. He will help you change your desires, your thoughts, and your actions. When you are worried, afraid, or struggling in any way, He will comfort you. You can trust Him in every part of your life.',
+    scripture_ref:'Philippians 4:13',
+    scripture_text:'I can do all things through Christ which strengtheneth me.',
+    tasks:[
+      {iconId:'icon-camera',type:'Photo',desc:'Show your team\'s strength — lift something heavy together (a teammate, a bench, anything) and take a photo. Caption it with Philippians 4:13.'},
+      {iconId:'icon-book',type:'Scripture',desc:'Read Phil. 4:13 out loud. Let each person share one thing they need Christ\'s strength for right now.'}
+    ],
+    discussion:[
+      'What are you trying to carry alone that you could let Christ help with?',
+      'How is building physical strength similar to building spiritual strength? What does the training look like?'
+    ],
+    ai_prompt:'A group of LDS youth ages 12-18 is standing outside a gym in Heber City. They just read Philippians 4:13. Write a personal grounded reflection prompt (3-4 sentences) connecting physical strength at the gym to relying on Christ\'s strength through emotional, spiritual, or social struggles as a teenager. Real and encouraging.'
+  },
+  {
+    id:'lighting', name:'Nova Lighting', iconId:'icon-light',
+    address:'162 S Main St, Heber City, UT 84032',
+    lat:40.5055, lng:-111.4138,
+    theme:'Walk in God\'s Light',
+    fsy_principle:'You make better choices when you can see clearly — that\'s why God\'s light matters. Walking in His light means choosing truth, honesty, and goodness even when darkness looks more appealing. His light doesn\'t just help you see; it helps you become.',
+    scripture_ref:'John 8:12',
+    scripture_text:'I am the light of the world: he that followeth me shall not walk in darkness, but shall have the light of life.',
+    tasks:[
+      {iconId:'icon-camera',type:'Photo',desc:'Take a creative group selfie in front of the most interesting light display you can find. Title it "Light of the World."'},
+      {iconId:'icon-chat',type:'Discussion',desc:'Look at the different lights around you — floodlights, spotlights, warm lamps, dimmers. Which best represents how you share Christ\'s light with others?'}
+    ],
+    discussion:[
+      'What does it feel like to be around someone who genuinely has the light of Christ in them?',
+      'In what area of your life do you most need more light right now?'
+    ],
+    ai_prompt:'A group of LDS youth ages 12-18 is near a lighting store in Heber City. They just read John 8:12. Write a short creative reflection prompt (3-4 sentences) using imagery of different kinds of light — bright, dim, warm, focused — to help them think about how they\'re sharing or blocking God\'s light in their daily lives.'
+  },
+  {
+    id:'mainstreet', name:'Main Street Heber', iconId:'icon-heart',
+    address:'150 N Main St, Heber City, UT 84032',
+    lat:40.5097, lng:-111.4129,
+    theme:'Love God, Love Your Neighbor',
+    fsy_principle:'The two greatest commandments are to love God and love your neighbor. Everything else in the scriptures connects back to these two. How you treat the people around you every day is your discipleship in action.',
+    scripture_ref:'Matthew 22:37–39',
+    scripture_text:'Thou shalt love the Lord thy God with all thy heart, and with all thy soul, and with all thy mind. And the second is like unto it, Thou shalt love thy neighbour as thyself.',
+    tasks:[
+      {iconId:'icon-service',type:'Service',desc:'Do a random act of kindness for a stranger on Main Street — hold a door, help someone carry something, leave a kind note, or greet someone with genuine warmth.'},
+      {iconId:'icon-camera',type:'Photo',desc:'Capture your act of kindness in a photo (without being intrusive). Let it tell the story of discipleship.'}
+    ],
+    discussion:[
+      'Who is the hardest "neighbor" for you to love right now — at school, home, or online? What would loving them look like?',
+      'If someone watched how you treated people this week, would they know you follow Christ?'
+    ],
+    ai_prompt:'A group of LDS youth ages 12-18 just did a random act of kindness for a stranger on Main Street in Heber City. They read Matthew 22:37-39. Write a sincere brief reflection prompt (3-4 sentences) challenging them to think about how loving God and loving neighbors are the same thing — and what one relationship needs more intentional love this week.'
+  },
+  {
+    id:'clothing', name:'Walmart / Maurices', iconId:'icon-clothes',
+    address:'1268 US-189 Suite 300, Heber City, UT 84032',
+    lat:40.4937, lng:-111.4164,
+    theme:'Your Body Is Sacred',
+    fsy_principle:'Your body is a sacred gift from God. Treat your body — and others\' bodies — with respect. As you make decisions about clothing and appearance, ask yourself: "Am I honoring my body as a sacred gift from God?" Great personal style and honoring who you really are go together.',
+    scripture_ref:'1 Corinthians 6:19–20',
+    scripture_text:'Know ye not that your body is the temple of the Holy Ghost? For ye are bought with a price: therefore glorify God in your body.',
+    tasks:[
+      {iconId:'icon-clothes',type:'Photo',desc:'Pick out 2–3 modest, stylish outfits you\'d feel confident and Christlike wearing. Try them on and take a fun group photo. Celebrate good style.'},
+      {iconId:'icon-book',type:'Scripture',desc:'Read 1 Cor. 6:19–20 together. How does thinking of your body as a temple change how you approach fashion?'}
+    ],
+    discussion:[
+      'How does what you wear affect how you feel about yourself? How does it affect how others see you?',
+      'Is there a difference between dressing modestly and dressing boringly? How do you find great style within your standards?'
+    ],
+    ai_prompt:'A group of LDS youth ages 12-18 is inside a clothing store in Heber City, trying on modest outfits. They read 1 Corinthians 6:19-20. Write a fun but genuine reflection prompt (3-4 sentences) helping them connect personal style and self-respect to their identity as children of God. Upbeat and real — not preachy.'
+  },
+  {
+    id:'temple', name:'Temple Site / Timberline Ace', iconId:'icon-temple',
+    address:'E Center St & 737 S Main St, Heber City, UT 84032',
+    lat:40.5066, lng:-111.3907,
+    theme:'Truth & Repentance Set You Free',
+    fsy_principle:'Temple ordinances and covenants give you greater access to God\'s blessings. And repentance isn\'t punishment — it\'s the way the Savior frees us from sin. It means turning toward God. This kind of change isn\'t a one-time event; it\'s an ongoing, beautiful process.',
+    scripture_ref:'John 8:32',
+    scripture_text:'And ye shall know the truth, and the truth shall make you free.',
+    tasks:[
+      {iconId:'icon-music',type:'Service',desc:'Stand near the Heber Valley Temple site and sing "I Love to See the Temple" together. Let the spirit of that place be real to you.'},
+      {iconId:'icon-wrench',type:'Photo',desc:'Walk into Timberline Ace Hardware (737 S Main St) and find a tool that "restores something broken" — a patch kit, wood filler, repair adhesive. Photograph it. How is it like repentance?'},
+      {iconId:'icon-book',type:'Scripture',desc:'Read John 8:32 together. How does knowing the truth — about who you are and what Christ offers — make you free?'}
+    ],
+    discussion:[
+      'What\'s something in your life right now that needs restoring? How does the Atonement make that possible?',
+      'How does having a temple nearby change how you think about your future?'
+    ],
+    ai_prompt:'A group of LDS youth ages 12-18 just sang "I Love to See the Temple" near the Heber Valley Temple site and visited Timberline Ace Hardware to find a tool representing restoration and repentance. They read John 8:32. Write a tender heartfelt reflection prompt (3-4 sentences) inviting them to think about one thing Christ wants to restore in their life — and how the temple and Atonement make that possible. Genuine and hopeful.'
+  }
+];
+
+// ── STATE ────────────────────────────────────────────────────
+let S = {
+  teamName: '',
+  teamStops: [],          // 5-stop subset in randomized order
+  currentIdx: 0,
+  completed: [],          // indices into teamStops
+  userLat: null, userLng: null,
+  gpsAvailable: false, demoMode: false,
+  watchId: null,
+  aiCache: {}
+};
+
+const RADIUS_M = 150;
+
+// ── SEEDED RNG ───────────────────────────────────────────────
+function seededRNG(seed) {
+  let s = seed;
+  return () => { s = (s * 1664525 + 1013904223) & 0xffffffff; return (s >>> 0) / 0xffffffff; };
+}
+function shuffleSeeded(arr, rng) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function buildTeamRoute(name) {
+  let seed = 0;
+  for (let i = 0; i < name.length; i++) seed = (seed * 31 + name.charCodeAt(i)) | 0;
+  const rng = seededRNG(Math.abs(seed) || 42);
+  return shuffleSeeded(ALL_STOPS, rng).slice(0, 5);
+}
+
+// ── UTILS ────────────────────────────────────────────────────
+function haversineDist(lat1,lng1,lat2,lng2) {
+  const R=6371000, dLat=(lat2-lat1)*Math.PI/180, dLng=(lng2-lng1)*Math.PI/180;
+  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+function fmtDist(m) { return m<1000 ? Math.round(m)+' m' : (m/1000).toFixed(1)+' km'; }
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function svgIcon(symbolId, size=22, color='#c8a84b') {
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" style="display:block;"><use href="#${symbolId}" stroke="${color}" fill="none"/></svg>`;
+}
+
+// ── HEARTBEAT ────────────────────────────────────────────────
+function tempClass(dist) {
+  if (dist > 400) return ['temp-frigid','speed-1','Freezing Cold'];
+  if (dist > 300) return ['temp-cold',  'speed-2','Cold'];
+  if (dist > 200) return ['temp-cool',  'speed-3','Getting Warmer'];
+  if (dist > 150) return ['temp-neutral','speed-4','Warm'];
+  if (dist > 80)  return ['temp-warm',  'speed-5','Very Warm!'];
+                  return ['temp-hot',   'speed-6','You\'re On Fire!'];
+}
+
+function updateHeartbeat(stopIdx, dist) {
+  const [tempCls, speedCls, label] = tempClass(dist);
+  const wrap = document.getElementById('hb-wrap-' + stopIdx);
+  if (!wrap) return;
+  // Replace all temp & speed classes
+  wrap.className = wrap.className.replace(/temp-\w+|speed-\d/g, '').trim();
+  wrap.classList.add(tempCls, speedCls);
+
+  const txt = document.getElementById('hb-status-' + stopIdx);
+  const distEl = document.getElementById('hb-dist-' + stopIdx);
+  if (txt) txt.textContent = label;
+  if (distEl) distEl.innerHTML = fmtDist(dist);
+}
+
+// ── GPS ──────────────────────────────────────────────────────
+function setGPS(status) {
+  const ring = document.getElementById('gps-ring');
+  const chip = document.getElementById('team-chip-label');
+  ring.className = 'gps-ring ' + (status==='live'?'live':status==='off'?'off':'');
+  chip.textContent = status==='live' ? S.teamName||'Live' : status==='off' ? 'Demo' : '…';
+}
+
+function startGPS() {
+  if (!navigator.geolocation) { enterDemo('no-api'); return; }
+
+  // HTTPS check — Geolocation requires secure context
+  if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+    enterDemo('insecure');
+    return;
+  }
+
+  setGPS('searching');
+  S.gpsRetries = 0;
+  attemptWatch();
+}
+
+function attemptWatch() {
+  if (S.watchId) navigator.geolocation.clearWatch(S.watchId);
+
+  // Fallback to demo if no position after 14s
+  S.gpsFallbackTimer = setTimeout(() => {
+    if (!S.gpsAvailable) enterDemo('timeout');
+  }, 14000);
+
+  const highAcc = S.gpsRetries < 2; // first 2 attempts use high accuracy
+  S.watchId = navigator.geolocation.watchPosition(
+    pos => {
+      clearTimeout(S.gpsFallbackTimer);
+      S.userLat = pos.coords.latitude;
+      S.userLng = pos.coords.longitude;
+      S.gpsAvailable = true;
+      S.demoMode = false;
+      S.gpsRetries = 0;
+      setGPS('live');
+      tickDistances();
+    },
+    err => {
+      clearTimeout(S.gpsFallbackTimer);
+      if (err.code === 1) {
+        // PERMISSION_DENIED — user said no or insecure context
+        enterDemo('denied');
+      } else if (err.code === 3 && S.gpsRetries < 3) {
+        // TIMEOUT — retry with exponential backoff, drop high accuracy after first retry
+        S.gpsRetries++;
+        const delay = S.gpsRetries * 2000;
+        setTimeout(attemptWatch, delay);
+        setGPS('searching');
+      } else {
+        // POSITION_UNAVAILABLE or repeated timeouts
+        enterDemo('unavailable');
+      }
+    },
+    { enableHighAccuracy: highAcc, maximumAge: 10000, timeout: 12000 }
+  );
+}
+
+function refreshGPS() {
+  if (S.demoMode) {
+    // Try to re-acquire from demo mode
+    S.demoMode = false;
+    S.gpsAvailable = false;
+    document.getElementById('demo-banner').style.display = 'none';
+    startGPS();
+    return;
+  }
+  navigator.geolocation?.getCurrentPosition(
+    p => {
+      S.userLat = p.coords.latitude; S.userLng = p.coords.longitude;
+      S.gpsAvailable = true; setGPS('live'); tickDistances();
+    },
+    err => { if (err.code === 1) enterDemo('denied'); }
+  );
+}
+
+function enterDemo(reason) {
+  S.demoMode = true; setGPS('off');
+  const banner = document.getElementById('demo-banner');
+
+  const msgs = {
+    'insecure':    '⚠ GPS requires HTTPS — using Demo Mode. Host this file on a secure server to enable live GPS.',
+    'denied':      '📍 Location permission denied — using Demo Mode. Enable location in browser settings to use live GPS.',
+    'timeout':     '⏱ GPS timed out — using Demo Mode. Tap the GPS chip in the header to retry.',
+    'unavailable': '📡 GPS signal unavailable — using Demo Mode. Try moving outdoors.',
+    'no-api':      '🚫 This browser does not support GPS — using Demo Mode.',
+  };
+  banner.textContent = msgs[reason] || 'Demo Mode active — GPS unavailable.';
+  banner.style.display = 'block';
+
+  const sb = document.getElementById('sim-btn-' + S.currentIdx);
+  if (sb) sb.style.display = 'block';
+}
+
+function tickDistances() {
+  // Only track distance to the current active stop
+  const i = S.currentIdx;
+  if (S.completed.includes(i)) return;
+  const stop = S.teamStops[i];
+  const dist = haversineDist(S.userLat, S.userLng, stop.lat, stop.lng);
+  updateHeartbeat(i, dist);
+  if (dist < RADIUS_M) unlockStop(i);
+}
+
+// ── HUNT FLOW ────────────────────────────────────────────────
+function startHunt() {
+  const input = document.getElementById('team-name-input').value.trim();
+  S.teamName = input || 'Your Team';
+  S.teamStops = buildTeamRoute(S.teamName);
+  S.currentIdx = 0; S.completed = []; S.aiCache = {};
+
+  document.getElementById('prog-wrap').style.display = 'block';
+  document.getElementById('gps-test-btn').style.display = 'block';
+  buildProgress();
+  buildAllCards();
+  showScreen('screen-game');
+  startGPS();
+}
+
+function restartHunt() {
+  if (S.watchId) navigator.geolocation.clearWatch(S.watchId);
+  S = { teamName:'', teamStops:[], currentIdx:0, completed:[], userLat:null, userLng:null, gpsAvailable:false, demoMode:false, watchId:null, aiCache:{} };
+  document.getElementById('prog-wrap').style.display = 'none';
+  document.getElementById('team-name-input').value = '';
+  showScreen('screen-start');
+}
+
+// ── PROGRESS ─────────────────────────────────────────────────
+function buildProgress() {
+  const track = document.getElementById('prog-track'); track.innerHTML = '';
+  for (let i = 0; i < 5; i++) {
+    if (i > 0) {
+      const line = document.createElement('div');
+      line.className = 'prog-line'; line.id = 'prog-line-' + i;
+      track.appendChild(line);
+    }
+    const node = document.createElement('div');
+    node.className = 'prog-node' + (i===0?' active':''); node.id = 'prog-node-' + i;
+    node.textContent = i + 1; track.appendChild(node);
+  }
+  updateProgress();
+}
+
+function updateProgress() {
+  for (let i = 0; i < 5; i++) {
+    const node = document.getElementById('prog-node-' + i);
+    if (!node) continue;
+    const done = S.completed.includes(i);
+    const active = i === S.currentIdx && !done;
+    node.className = 'prog-node' + (done?' done':active?' active':'');
+    if (done) node.innerHTML = svgIcon('icon-check', 14, 'white');
+    else node.textContent = i + 1;
+
+    if (i > 0) {
+      const line = document.getElementById('prog-line-' + i);
+      if (line) line.className = 'prog-line' + (S.completed.includes(i-1)?' done':'');
+    }
+  }
+  document.getElementById('prog-label').textContent = `${S.completed.length} of 5 stops complete`;
+}
+
+// ── CARDS ─────────────────────────────────────────────────────
+function buildAllCards() {
+  const c = document.getElementById('stops-container'); c.innerHTML = '';
+  S.teamStops.forEach((stop, i) => c.appendChild(buildCard(stop, i)));
+}
+
+function buildCard(stop, i) {
+  const isSealed  = i > S.currentIdx;
+  const isDone    = S.completed.includes(i);
+  const el = document.createElement('div');
+  el.id = 'card-' + i;
+  el.className = 'mission-card' + (isSealed ? ' sealed' : '');
+  if (isDone) el.style.opacity = '0.72';
+
+  // ── SEALED (future stop) ───────────────────────────────────
+  if (isSealed) {
+    el.innerHTML = `
+      <div class="mc-head">
+        <div class="mc-head-left">
+          <div class="mc-stop-icon">${svgIcon('icon-lock', 20, 'rgba(200,168,75,0.25)')}</div>
+          <div>
+            <div class="mc-label">Stop ${i+1} of 5</div>
+            <div class="mc-name">— Locked —</div>
+          </div>
+        </div>
+      </div>
+      <div class="sealed-body">
+        <div class="sealed-lock">${svgIcon('icon-lock', 26, '#7a7060')}</div>
+        <div class="sealed-text">Complete the current stop<br>to reveal this location</div>
+      </div>`;
+    return el;
+  }
+
+  // ── ACTIVE / COMPLETED STOP ────────────────────────────────
+  el.innerHTML = `
+    <div class="mc-head">
+      <div class="mc-head-left">
+        <div class="mc-stop-icon">${svgIcon(stop.iconId, 22, '#c8a84b')}</div>
+        <div>
+          <div class="mc-label">Stop ${i+1} of 5 · ${stop.theme}</div>
+          <div class="mc-name">${stop.name}</div>
+        </div>
+      </div>
+      <div class="mc-badge">${stop.theme}</div>
+    </div>
+    <div class="mc-body">
+      <div class="done-banner${isDone?' show':''}" id="done-banner-${i}">
+        ${svgIcon('icon-check',14,'white')} &nbsp; Stop Completed
+      </div>
+      <div id="hb-outer-${i}"${isDone?' style="display:none"':''}>
+        <div class="heartbeat-block">
+          <div class="hb-ring-wrap" id="hb-wrap-${i}" style="--hb-speed:2.5s">
+            <div class="hb-ring"></div><div class="hb-ring"></div><div class="hb-ring"></div>
+            <div class="hb-core">${svgIcon('icon-pulse', 14, 'white')}</div>
+          </div>
+          <div class="hb-status-text" id="hb-status-${i}">Acquiring signal…</div>
+          <div class="hb-dist" id="hb-dist-${i}">—</div>
+        </div>
+        <div class="lock-msg-block" id="lock-msg-${i}">
+          <div class="lock-icon-svg">${svgIcon('icon-lock', 28, '#7a7060')}</div>
+          <div class="lock-text">Walk to <strong>${stop.name}</strong><br>to unlock this mission</div>
+        </div>
+        <button class="sim-btn" id="sim-btn-${i}" onclick="unlockStop(${i})">
+          Simulate Arrival at ${stop.name}
+        </button>
+      </div>
+      <div class="unlocked-block${isDone?' show':''}" id="unlocked-${i}">
+        <div class="scripture-card">
+          <div class="scripture-ref">${stop.scripture_ref}</div>
+          <div class="scripture-text">"${stop.scripture_text}"</div>
+        </div>
+        <div class="principle-block">
+          <div class="block-label">FSY Principle</div>
+          <div class="principle-text">${stop.fsy_principle}</div>
+        </div>
+        <hr class="divider">
+        <div class="block-label">Your Tasks</div>
+        <div class="tasks-grid" id="tasks-grid-${i}">
+          ${stop.tasks.map((t, ti)=>`
+            <div class="task-row" id="task-${i}-${ti}" onclick="toggleTask(${i},${ti},${stop.tasks.length})">
+              <div class="task-icon-wrap">
+                <span class="task-svg-icon">${svgIcon(t.iconId, 18, '#c8a84b')}</span>
+                <span class="task-check-overlay">${svgIcon('icon-check', 16, 'white')}</span>
+              </div>
+              <div>
+                <div class="task-kind">${t.type}</div>
+                <div class="task-desc">${t.desc}</div>
+              </div>
+            </div>`).join('')}
+        </div>
+        <div class="disc-block">
+          <div class="block-label">Discuss Together</div>
+          ${stop.discussion.map((q,qi)=>`
+            <div class="disc-q">
+              <span class="disc-q-num">Q${qi+1}</span>
+              <span>${q}</span>
+            </div>`).join('')}
+        </div>
+        <hr class="divider">
+        <div class="ai-block">
+          <div class="ai-label">Reflection Prompt</div>
+          <div class="ai-box" id="ai-box-${i}"></div>
+        </div>
+        ${!isDone?`
+        <button class="complete-btn" id="complete-btn-${i}" onclick="markComplete(${i})" disabled>
+          ${svgIcon('icon-check', 16, '#e8cc7a')} &nbsp; Mark Stop Complete
+        </button>
+        <div class="complete-btn-hint" id="complete-hint-${i}">Check off all tasks above to continue</div>
+        `:''}
+      </div>
+    </div>`;
+
+  return el;
+}
+
+// ── ARRIVAL BURST ANIMATION ───────────────────────────────────
+function playArrivalBurst(stopName, cb) {
+  const ov = document.getElementById('arrival-overlay');
+  const bt = document.getElementById('burst-text');
+  bt.textContent = stopName;
+  ov.style.display = 'flex';
+  // Reset ring animations by re-cloning
+  ov.querySelectorAll('.burst-ring').forEach(r => {
+    const clone = r.cloneNode(true); r.parentNode.replaceChild(clone, r);
+  });
+  const flash = ov.querySelector('.burst-flash');
+  if (flash) { const fc = flash.cloneNode(true); flash.parentNode.replaceChild(fc, flash); }
+  setTimeout(() => { ov.style.display = 'none'; if (cb) cb(); }, 1300);
+}
+
+// ── STAMP COMPLETE ANIMATION ──────────────────────────────────
+function playStampAnimation(cb) {
+  const ov = document.getElementById('stamp-overlay');
+  const seal = document.getElementById('stamp-seal');
+  seal.className = 'stamp-seal';
+  ov.style.display = 'flex';
+  // Force reflow to restart animation
+  void seal.offsetWidth;
+  seal.classList.add('stamp-out');
+  setTimeout(() => { ov.style.display = 'none'; if (cb) cb(); }, 1400);
+}
+
+// ── REVEAL NEXT CARD ──────────────────────────────────────────
+function revealNextCard(nextIdx) {
+  const nextStop = S.teamStops[nextIdx];
+  const oldCard  = document.getElementById('card-' + nextIdx);
+  if (!oldCard) return;
+
+  // Build the real card HTML in place of the sealed one
+  const newCard = buildCard(nextStop, nextIdx);
+  newCard.classList.add('revealing');
+  oldCard.parentNode.replaceChild(newCard, oldCard);
+
+  // Show sim button if in demo mode
+  if (S.demoMode) {
+    const sb = document.getElementById('sim-btn-' + nextIdx);
+    if (sb) sb.style.display = 'block';
+  }
+
+  setTimeout(() => newCard.scrollIntoView({ behavior:'smooth', block:'start' }), 200);
+}
+
+// ── UNLOCK ───────────────────────────────────────────────────
+function unlockStop(i) {
+  const ul = document.getElementById('unlocked-' + i);
+  if (!ul || ul.classList.contains('show')) return;
+
+  const stopName = S.teamStops[i].name;
+
+  playArrivalBurst(stopName, () => {
+    const hbOuter = document.getElementById('hb-outer-' + i);
+    if (hbOuter) hbOuter.style.display = 'none';
+    ul.classList.add('show');
+    fetchAI(i);
+  });
+}
+
+// ── AI ───────────────────────────────────────────────────────
+// ── FIXED REFLECTION PROMPTS ─────────────────────────────────
+const REFLECTIONS = {
+  chapel:     "Every time you take the sacrament, you're making a real promise — and God is making one back. Think about the covenant you renewed most recently. What would it look like this week to actually live it, not just recite it? The Lord is bound when you do what He says. That's not a threat — it's an invitation.",
+  cemetery:   "Standing here, surrounded by people who lived full lives and are now on the other side, it's hard not to ask: what am I actually building with my time? Eternity isn't something far away — it's the context your choices are already happening in. The hard thing you're facing right now looks different from that angle. How does it change what you'll do tomorrow?",
+  pantry:     "Somewhere in your life right now, there's a person who's carrying something heavy — and you're one of the only people positioned to notice. Serving them doesn't require a program or a calling. It just requires you showing up. Today you stood in a place built entirely on someone choosing to show up. What would it mean for you to be that person for someone this week?",
+  gym:        "Physical strength doesn't come from one good workout — it comes from showing up when it's hard, when you're tired, when you don't feel like it. Your spiritual strength works exactly the same way. There's something in your life right now that Christ is trying to build in you through resistance. What is it, and what would it look like to stop fighting it and start training through it?",
+  lighting:   "The light in this room doesn't ask permission to push out the darkness — it just shines, and the darkness leaves. You carry that same light. The question isn't whether you have it. The question is what's dimming it — and whether you're willing to let Christ turn it back up. Who in your life most needs to see that light from you right now?",
+  mainstreet: "The greatest commandment isn't complicated — love God, love people. But loving people is hard, especially the ones who are difficult, annoying, or different from you. Real discipleship isn't something you perform on Sunday; it's something you do on a random Tuesday for a stranger on the street. You just did it. What would happen if you kept doing it?",
+  clothing:   "Your body is not a problem to manage — it's a gift to steward. The way you dress is a daily decision about how you see yourself and how you invite others to see you. That doesn't mean boring or baggy. It means intentional. What would it look like to approach your appearance with the same care you'd give something that belongs to God — because it does?",
+  temple:     "Repentance isn't the thing you do when you've failed. It's the ongoing process of becoming who God always saw you as. The Savior's atonement isn't a last resort — it's the whole plan. Whatever is broken in you right now, He already bought the repair kit. The question is whether you'll let Him fix it. What's one thing you've been holding onto that's ready to be restored?"
+};
+
+function fetchAI(i) {
+  const stop = S.teamStops[i];
+  const box = document.getElementById('ai-box-' + i);
+  if (!box) return;
+  const text = REFLECTIONS[stop.id] || "Take a quiet moment together. What did this stop stir in you? What's one thing you'll do differently this week because of it?";
+  // Small delay so it feels intentional, not instant
+  setTimeout(() => { box.innerHTML = text; }, 400);
+}
+
+// ── TASK CHECKLIST ────────────────────────────────────────────
+function toggleTask(stopIdx, taskIdx, totalTasks) {
+  const row = document.getElementById(`task-${stopIdx}-${taskIdx}`);
+  if (!row) return;
+  row.classList.toggle('checked');
+
+  // Count how many are checked
+  let checked = 0;
+  for (let t = 0; t < totalTasks; t++) {
+    const r = document.getElementById(`task-${stopIdx}-${t}`);
+    if (r && r.classList.contains('checked')) checked++;
+  }
+
+  const btn = document.getElementById('complete-btn-' + stopIdx);
+  const hint = document.getElementById('complete-hint-' + stopIdx);
+  const allDone = checked === totalTasks;
+
+  if (btn) btn.disabled = !allDone;
+  if (hint) {
+    hint.textContent = allDone
+      ? 'All tasks complete — tap to finish this stop!'
+      : `${totalTasks - checked} task${totalTasks - checked !== 1 ? 's' : ''} remaining`;
+    hint.style.color = allDone ? 'var(--green)' : '';
+  }
+}
+
+// ── COMPLETE ─────────────────────────────────────────────────
+function markComplete(i) {
+  if (S.completed.includes(i)) return;
+
+  // Disable button immediately to prevent double-tap
+  const btn = document.getElementById('complete-btn-' + i);
+  if (btn) btn.disabled = true;
+
+  playStampAnimation(() => {
+    S.completed.push(i);
+
+    const banner = document.getElementById('done-banner-' + i);
+    if (banner) banner.classList.add('show');
+    if (btn) btn.remove();
+    const card = document.getElementById('card-' + i);
+    if (card) { card.style.opacity = '0.72'; card.classList.remove('revealing'); }
+
+    updateProgress();
+
+    if (S.completed.length === 5) {
+      setTimeout(showWin, 600);
+      return;
+    }
+
+    if (S.currentIdx === i) {
+      S.currentIdx = Math.min(i + 1, 4);
+      revealNextCard(S.currentIdx);
+    }
+  });
+}
+
+// ── AMAZING RACE INTRO ───────────────────────────────────────
+let introPrincipleIdx = -1;
+const TOTAL_PRINCIPLES = 8;
+
+function showIntroStage(id) {
+  document.querySelectorAll('.intro-stage').forEach(s => s.classList.remove('active'));
+  const s = document.getElementById(id);
+  if (s) s.classList.add('active');
+}
+
+function endIntroFromSwipe() { endIntro(); }
+
+function endIntro() {
+  const screen = document.getElementById('intro-screen');
+  screen.style.transition = 'opacity 0.5s ease';
+  screen.style.opacity = '0';
+  setTimeout(() => screen.style.display = 'none', 500);
+}
+
+// Stage 1: user taps Begin →
+function introBegin() {
+  showIntroStage('stage-stats');
+  [0,1,2,3].forEach((n, i) => {
+    setTimeout(() => {
+      const row = document.getElementById('stat-' + n);
+      if (row) row.classList.add('pop');
+    }, i * 220);
+  });
+  // Auto-advance to principles after stats animate
+  setTimeout(() => introStartPrinciples(), 2800);
+}
+
+// Stage 3: tap-to-advance principles
+// Stage 3: auto-advance principles like a video reel
+function introStartPrinciples() {
+  showIntroStage('stage-locations');
+  const nav = document.getElementById('principle-nav');
+  nav.innerHTML = Array.from({length: TOTAL_PRINCIPLES}, (_,i) =>
+    `<div class="p-pip" id="ppip-${i}"></div>`).join('');
+
+  let idx = 0;
+  const dur = 900; // ms per principle
+
+  function showNext() {
+    if (idx >= TOTAL_PRINCIPLES) {
+      // All done — advance to GO
+      showIntroStage('stage-go');
+      const gf = document.querySelector('.go-flash');
+      if (gf) { const c = gf.cloneNode(true); gf.parentNode.replaceChild(c, gf); }
+      setupSwipeUp();
+      return;
+    }
+    // Update dots
+    document.querySelectorAll('.p-pip').forEach((p, i) => {
+      p.className = 'p-pip' + (i === idx ? ' active' : i < idx ? ' done' : '');
+    });
+    // Crossfade in this card
+    const flashes = document.querySelectorAll('.loc-flash');
+    flashes.forEach(f => f.classList.remove('show'));
+    const target = document.getElementById('loc-flash-' + idx);
+    if (target) {
+      const clone = target.cloneNode(true);
+      target.parentNode.replaceChild(clone, target);
+      void clone.offsetWidth;
+      clone.classList.add('show');
+    }
+    idx++;
+    setTimeout(showNext, dur);
+  }
+  showNext();
+}
+
+// Kept for compatibility but no longer called from HTML
+function introNextPrinciple() {}
+
+// Swipe-up on GO stage
+function setupSwipeUp() {
+  const stage = document.getElementById('stage-go');
+  if (!stage) return;
+  let startY = null;
+  stage.addEventListener('touchstart', e => { startY = e.touches[0].clientY; }, {passive:true});
+  stage.addEventListener('touchend', e => {
+    if (startY === null) return;
+    const dy = startY - e.changedTouches[0].clientY;
+    if (dy > 40) endIntro();
+    startY = null;
+  }, {passive:true});
+}
+
+function skipIntro() { endIntro(); }
+
+// ── WIN ──────────────────────────────────────────────────────
+function showWin() {
+  document.getElementById('win-sub').textContent = `${S.teamName} walked Heber City with purpose and faith.`;
+  const list = document.getElementById('win-list');
+  list.innerHTML = S.teamStops.map(stop=>`
+    <li>
+      <div class="win-check-icon">${svgIcon(stop.iconId, 20, '#b8923a')}</div>
+      <div>
+        <div class="win-stop-name">${stop.name}</div>
+        <div class="win-stop-theme">${stop.theme}</div>
+      </div>
+    </li>`).join('');
+  document.getElementById('prog-wrap').style.display = 'none';
+  showScreen('screen-win');
+}
+
+// ── FULLSCREEN / ADD TO HOME SCREEN PROMPT ───────────────────
+(function checkFullscreen() {
+  const isStandalone =
+    window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true;
+  if (isStandalone) return;
+
+  const ua = navigator.userAgent;
+  const isIOS = /iphone|ipad|ipod/i.test(ua);
+  const isAndroid = /android/i.test(ua);
+  const isChrome = /chrome/i.test(ua) && !/edg/i.test(ua);
+  const isSamsung = /samsungbrowser/i.test(ua);
+  const isFirefox = /firefox/i.test(ua);
+
+  // Only show on mobile
+  if (!isIOS && !isAndroid) return;
+
+  setTimeout(() => {
+    const prompt = document.getElementById('fullscreen-prompt');
+    const steps  = document.getElementById('fs-steps');
+
+    if (isIOS) {
+      steps.innerHTML = `
+        <div class="fs-step"><div class="fs-step-num">1</div><div class="fs-step-text">Tap the <strong>Share ⎙</strong> button at the bottom of Safari</div></div>
+        <div class="fs-step"><div class="fs-step-num">2</div><div class="fs-step-text">Scroll and tap <strong>"Add to Home Screen"</strong></div></div>
+        <div class="fs-step"><div class="fs-step-num">3</div><div class="fs-step-text">Tap <strong>Add</strong>, then reopen from your home screen</div></div>`;
+    } else if (isAndroid && isSamsung) {
+      steps.innerHTML = `
+        <div class="fs-step"><div class="fs-step-num">1</div><div class="fs-step-text">Tap the <strong>⋮ menu</strong> at the bottom of Samsung Internet</div></div>
+        <div class="fs-step"><div class="fs-step-num">2</div><div class="fs-step-text">Tap <strong>"Add page to"</strong> → <strong>"Home screen"</strong></div></div>
+        <div class="fs-step"><div class="fs-step-num">3</div><div class="fs-step-text">Tap <strong>Add</strong>, then reopen from your home screen</div></div>`;
+    } else if (isAndroid && isFirefox) {
+      steps.innerHTML = `
+        <div class="fs-step"><div class="fs-step-num">1</div><div class="fs-step-text">Tap the <strong>⋮ menu</strong> in Firefox</div></div>
+        <div class="fs-step"><div class="fs-step-num">2</div><div class="fs-step-text">Tap <strong>"Install"</strong> or <strong>"Add to Home screen"</strong></div></div>
+        <div class="fs-step"><div class="fs-step-num">3</div><div class="fs-step-text">Tap <strong>Add</strong>, then reopen from your home screen</div></div>`;
+    } else {
+      // Android Chrome (default)
+      steps.innerHTML = `
+        <div class="fs-step"><div class="fs-step-num">1</div><div class="fs-step-text">Tap the <strong>⋮ menu</strong> at the top right of Chrome</div></div>
+        <div class="fs-step"><div class="fs-step-num">2</div><div class="fs-step-text">Look for <strong>"Add to Home screen"</strong> or <strong>"Install app"</strong></div></div>
+        <div class="fs-step"><div class="fs-step-num">3</div><div class="fs-step-text">If not visible, try <strong>Chrome address bar → Install icon ⊕</strong></div></div>`;
+    }
+    prompt.style.display = 'flex';
+  }, 18000);
+})();
+
+function dismissFullscreen() {
+  const p = document.getElementById('fullscreen-prompt');
+  p.style.transition = 'opacity 0.3s';
+  p.style.opacity = '0';
+  setTimeout(() => {
+    p.style.display = 'none';
+    // Immediately request GPS permission after dismissing
+    triggerGPSPermission();
+  }, 300);
+  if (document.documentElement.requestFullscreen) {
+    document.documentElement.requestFullscreen().catch(() => {});
+  }
+}
+
+function triggerGPSPermission() {
+  // Check current state first, then request if needed
+  navigator.permissions?.query({ name: 'geolocation' }).then(result => {
+    if (result.state === 'granted') {
+      // Already have it — just refresh position
+      refreshGPS();
+    } else if (result.state === 'denied') {
+      // Show inline message — can't prompt again
+      showGPSBanner('denied');
+    } else {
+      // Prompt state — calling getCurrentPosition triggers the native dialog
+      showGPSBanner('prompting');
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          S.userLat = pos.coords.latitude;
+          S.userLng = pos.coords.longitude;
+          S.gpsAvailable = true;
+          setGPS('live');
+          showGPSBanner('granted');
+          tickDistances();
+        },
+        err => {
+          showGPSBanner(err.code === 1 ? 'denied' : 'error');
+        },
+        { enableHighAccuracy: true, timeout: 15000 }
+      );
+    }
+  }).catch(() => {
+    // Permissions API not available — just call directly
+    navigator.geolocation?.getCurrentPosition(
+      pos => { S.userLat = pos.coords.latitude; S.userLng = pos.coords.longitude; S.gpsAvailable = true; setGPS('live'); tickDistances(); },
+      () => {}
+    );
+  });
+}
+
+function showGPSBanner(state) {
+  // Show a brief toast/banner about GPS state
+  const existing = document.getElementById('gps-toast');
+  if (existing) existing.remove();
+  const msgs = {
+    prompting: '📍 Allow location access when your browser asks…',
+    granted:   '✓ Location granted — GPS is active',
+    denied:    '✗ Location denied — open GPS Test to fix',
+    error:     '⚠ Could not get location — try GPS Test'
+  };
+  const toast = document.createElement('div');
+  toast.id = 'gps-toast';
+  toast.style.cssText = `
+    position:fixed; bottom:80px; left:50%; transform:translateX(-50%);
+    background:rgba(12,31,63,0.95); color:${state==='granted'?'#4ade80':state==='denied'?'#f87171':'#e8cc7a'};
+    border:1px solid ${state==='granted'?'rgba(74,222,128,0.3)':state==='denied'?'rgba(248,113,113,0.3)':'rgba(232,204,122,0.3)'};
+    padding:10px 18px; border-radius:8px; z-index:8500;
+    font-family:'Josefin Sans',sans-serif; font-size:0.68rem; letter-spacing:1.5px;
+    white-space:nowrap; box-shadow:0 4px 20px rgba(0,0,0,0.3);
+    animation:fade-up 0.3s ease;
+  `;
+  toast.textContent = msgs[state] || '';
+  document.body.appendChild(toast);
+  if (state !== 'prompting') setTimeout(() => toast.remove(), 3500);
+}
+
+// ── GPS TEST / DIAGNOSTICS PANEL ─────────────────────────────
+function openGPSPanel() {
+  document.getElementById('gps-test-panel').classList.add('open');
+  diagRefresh();
+}
+
+function closeGPSPanel() {
+  document.getElementById('gps-test-panel').classList.remove('open');
+}
+
+function diagRequestGPS() {
+  const dot    = document.getElementById('diag-dot');
+  const status = document.getElementById('diag-status');
+  const coords = document.getElementById('diag-coords');
+  dot.className = 'gps-status-dot pending';
+  status.textContent = 'Requesting permission…';
+  coords.textContent = 'Watch for a prompt at the top of your screen';
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      dot.className = 'gps-status-dot granted';
+      status.textContent = '✓ Location permission granted';
+      coords.textContent = `${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)}  ±${Math.round(pos.coords.accuracy)}m`;
+      S.userLat = pos.coords.latitude;
+      S.userLng = pos.coords.longitude;
+      S.gpsAvailable = true;
+      setGPS('live');
+      diagUpdateStops();
+    },
+    err => {
+      dot.className = 'gps-status-dot denied';
+      const ua = navigator.userAgent;
+      const isAndroid = /android/i.test(ua);
+      const isIOS = /iphone|ipad|ipod/i.test(ua);
+      let fixMsg = '';
+      if (err.code === 1) {
+        if (isAndroid) fixMsg = 'Settings → Apps → Chrome → Permissions → Location → Allow';
+        else if (isIOS) fixMsg = 'Settings → Privacy → Location Services → Safari → While Using';
+        else fixMsg = 'Enable location in your browser site settings';
+        status.textContent = '✗ Permission denied';
+      } else if (err.code === 2) {
+        fixMsg = 'GPS signal unavailable — try outdoors or check device settings';
+        status.textContent = '✗ Position unavailable';
+      } else {
+        fixMsg = 'Request timed out — tap again';
+        status.textContent = '✗ Timed out';
+      }
+      coords.textContent = fixMsg;
+    },
+    { enableHighAccuracy: true, timeout: 14000 }
+  );
+}
+
+function diagRefresh() {
+  const dot    = document.getElementById('diag-dot');
+  const status = document.getElementById('diag-status');
+  const coords = document.getElementById('diag-coords');
+
+  if (!navigator.geolocation) {
+    dot.className = 'gps-status-dot denied';
+    status.textContent = 'Geolocation not supported by this browser';
+    coords.textContent = 'Try Chrome or Safari';
+    return;
+  }
+  navigator.permissions?.query({ name: 'geolocation' }).then(result => {
+    if (result.state === 'denied') {
+      dot.className = 'gps-status-dot denied';
+      const ua = navigator.userAgent;
+      const isAndroid = /android/i.test(ua);
+      status.textContent = '✗ Permission denied in device settings';
+      coords.textContent = isAndroid
+        ? 'Settings → Apps → Chrome → Permissions → Location'
+        : 'Settings → Privacy → Location Services → Safari';
+    } else if (result.state === 'granted' && S.userLat) {
+      dot.className = 'gps-status-dot granted';
+      status.textContent = '✓ Location active';
+      coords.textContent = `${S.userLat.toFixed(6)}, ${S.userLng.toFixed(6)}`;
+      diagUpdateStops();
+    } else {
+      dot.className = 'gps-status-dot pending';
+      status.textContent = result.state === 'prompt' ? 'Permission not yet requested' : 'Waiting for location…';
+      coords.textContent = 'Tap "Request Location Permission" below';
+    }
+  }).catch(() => {
+    if (S.userLat) {
+      dot.className = 'gps-status-dot granted';
+      status.textContent = '✓ Location active';
+      coords.textContent = `${S.userLat.toFixed(6)}, ${S.userLng.toFixed(6)}`;
+      diagUpdateStops();
+    } else {
+      dot.className = 'gps-status-dot pending';
+      status.textContent = 'Status unknown — tap Request below';
+      coords.textContent = '—';
+    }
+  });
+}
+
+function diagUpdateStops() {
+  const list = document.getElementById('diag-stop-list');
+  if (!S.teamStops || !S.teamStops.length) {
+    list.innerHTML = `<div style="font-family:'Josefin Sans',sans-serif;font-size:0.62rem;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.25);padding:4px 0;">Start a hunt to see distances</div>`;
+    return;
+  }
+  list.innerHTML = S.teamStops.map((stop, i) => {
+    const dist = S.userLat ? haversineDist(S.userLat, S.userLng, stop.lat, stop.lng) : null;
+    const distStr = dist !== null ? (dist < 1000 ? Math.round(dist) + ' m' : (dist/1000).toFixed(2) + ' km') : '—';
+    const isDone = S.completed.includes(i);
+    const isClose = dist !== null && dist < RADIUS_M;
+    return `<div class="gps-stop-row">
+      <div>
+        <div class="gps-stop-name">${i+1}. ${stop.name}</div>
+        <div style="font-family:'Josefin Sans',sans-serif;font-size:0.55rem;letter-spacing:1px;color:rgba(255,255,255,0.25);margin-top:2px;">${stop.lat.toFixed(5)}, ${stop.lng.toFixed(5)}</div>
+      </div>
+      <div class="gps-stop-dist ${isDone||isClose?'unlocked':''}">${isDone ? '✓ Done' : distStr}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── COMPASS — live device heading ────────────────────────────
+(function initCompass() {
+  const needle = document.getElementById('compass-needle');
+  if (!needle) return;
+
+  function applyHeading(heading) {
+    if (heading === null || heading === undefined) return;
+    needle.style.transform = `rotate(${-heading}deg)`;
+  }
+
+  // iOS 13+ requires permission for DeviceOrientationEvent
+  if (typeof DeviceOrientationEvent !== 'undefined' &&
+      typeof DeviceOrientationEvent.requestPermission === 'function') {
+    // Attach to the seal — tap it to grant compass permission
+    const seal = document.getElementById('compass-seal');
+    if (seal) {
+      seal.style.cursor = 'pointer';
+      seal.title = 'Tap to enable compass';
+      seal.addEventListener('click', () => {
+        DeviceOrientationEvent.requestPermission().then(state => {
+          if (state === 'granted') listenOrientation();
+        }).catch(() => {});
+      }, { once: true });
+    }
+  } else if (window.DeviceOrientationEvent) {
+    listenOrientation();
+  }
+
+  function listenOrientation() {
+    window.addEventListener('deviceorientationabsolute', handler, true);
+    window.addEventListener('deviceorientation', handler, true);
+  }
+
+  function handler(e) {
+    // webkitCompassHeading is iOS; alpha is Android (needs negation & mod)
+    let heading = null;
+    if (e.webkitCompassHeading !== undefined && e.webkitCompassHeading !== null) {
+      heading = e.webkitCompassHeading;
+    } else if (e.absolute && e.alpha !== null) {
+      heading = (360 - e.alpha) % 360;
+    } else if (e.alpha !== null) {
+      heading = (360 - e.alpha) % 360;
+    }
+    applyHeading(heading);
+  }
+
+  // Slow breathing rotation as fallback when no sensor data
+  let fallbackAngle = 0;
+  let fallbackActive = true;
+  window.addEventListener('deviceorientation', () => { fallbackActive = false; }, { once: true });
+  window.addEventListener('deviceorientationabsolute', () => { fallbackActive = false; }, { once: true });
+  (function fallbackSpin() {
+    if (!fallbackActive) return;
+    fallbackAngle = (fallbackAngle + 0.3) % 360;
+    if (needle) needle.style.transform = `rotate(${fallbackAngle}deg)`;
+    requestAnimationFrame(fallbackSpin);
+  })();
+})();
+// Show GPS test button once game starts — wired directly in startHunt above
+</script>
+</body>
+</html>
