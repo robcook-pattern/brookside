@@ -202,14 +202,18 @@ main {
   color: var(--gold); margin-bottom: 6px;
 }
 .team-input-row { display: flex; gap: 8px; }
-.team-input {
+.team-input,
+select.team-input {
   flex: 1; background: rgba(255,255,255,0.7); border: 1.5px solid var(--border);
   border-radius: 6px; padding: 10px 14px;
   font-family: 'Cormorant Garamond', serif; font-size: 1.05rem;
   color: var(--navy); outline: none; transition: border-color 0.2s;
+  width: 100%; appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7060' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center;
+  background-size: 12px;
+  padding-right: 36px;
 }
-.team-input:focus { border-color: var(--gold); }
-.team-input::placeholder { color: var(--muted); font-style: italic; }
 
 /* Cards */
 .card {
@@ -511,63 +515,6 @@ main {
 }
 .done-banner.show { display: flex; }
 
-/* ─── FULLSCREEN PROMPT ──────────────────────────────────── */
-#fullscreen-prompt {
-  position: fixed; inset: 0; z-index: 9500;
-  background: rgba(12,31,63,0.97);
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 20px; padding: 32px 24px;
-  text-align: center;
-  animation: fade-up 0.4s ease;
-}
-.fs-icon { font-size: 3rem; margin-bottom: 4px; }
-.fs-title {
-  font-family: 'Marcellus', serif; font-size: 1.5rem;
-  letter-spacing: 2px; color: #fff; margin-bottom: 4px;
-}
-.fs-body {
-  font-family: 'Josefin Sans', sans-serif;
-  font-size: 0.72rem; letter-spacing: 1.5px; line-height: 1.9;
-  color: rgba(255,255,255,0.5); text-transform: uppercase;
-  max-width: 280px;
-}
-.fs-steps {
-  display: flex; flex-direction: column; gap: 10px;
-  width: 100%; max-width: 300px;
-  margin: 4px 0;
-}
-.fs-step {
-  display: flex; align-items: center; gap: 12px;
-  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 8px; padding: 10px 14px; text-align: left;
-}
-.fs-step-num {
-  width: 24px; height: 24px; border-radius: 50%;
-  background: var(--gold); color: #000;
-  font-family: 'Josefin Sans', sans-serif; font-size: 0.68rem; font-weight: 600;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
-.fs-step-text {
-  font-family: 'Josefin Sans', sans-serif; font-size: 0.68rem;
-  letter-spacing: 1px; color: rgba(255,255,255,0.6); line-height: 1.5;
-}
-.fs-btn {
-  background: var(--gold); color: #000;
-  border: none; border-radius: 8px; padding: 13px 32px;
-  font-family: 'Josefin Sans', sans-serif; font-size: 0.75rem;
-  letter-spacing: 2.5px; text-transform: uppercase;
-  cursor: pointer; font-weight: 600;
-  transition: background 0.2s;
-}
-.fs-btn:hover { background: var(--gold2); }
-.fs-skip-link {
-  font-family: 'Josefin Sans', sans-serif; font-size: 0.6rem;
-  letter-spacing: 2px; text-transform: uppercase;
-  color: rgba(255,255,255,0.25); cursor: pointer; margin-top: -8px;
-}
-.fs-skip-link:hover { color: rgba(255,255,255,0.5); }
-
 /* ─── GPS TEST PANEL ─────────────────────────────────────── */
 #gps-test-panel {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 8000;
@@ -825,10 +772,24 @@ main {
 }
 .go-word {
   font-family: 'Marcellus', serif;
-  font-size: clamp(5rem, 22vw, 9rem);
+  font-size: clamp(4rem, 20vw, 8rem);
   letter-spacing: 8px; color: var(--gold2); line-height: 1;
   animation: go-slam 0.4s 0.2s cubic-bezier(.1,.9,.3,1.4) both;
   text-shadow: 0 0 80px rgba(212,168,75,0.7), 0 0 160px rgba(212,168,75,0.3);
+  /* Launch button feel */
+  width: clamp(180px, 55vw, 260px);
+  height: clamp(180px, 55vw, 260px);
+  border-radius: 50%;
+  border: 3px solid rgba(212,168,75,0.6);
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(circle at 40% 35%, rgba(212,168,75,0.18), rgba(12,31,63,0.4));
+  box-shadow: 0 0 0 12px rgba(212,168,75,0.08), 0 0 60px rgba(212,168,75,0.25), inset 0 0 40px rgba(12,31,63,0.5);
+  animation: go-slam 0.4s 0.2s cubic-bezier(.1,.9,.3,1.4) both, go-pulse 2s 0.8s ease-in-out infinite;
+  cursor: pointer;
+}
+@keyframes go-pulse {
+  0%,100% { box-shadow: 0 0 0 12px rgba(212,168,75,0.08), 0 0 60px rgba(212,168,75,0.25), inset 0 0 40px rgba(12,31,63,0.5); }
+  50%     { box-shadow: 0 0 0 24px rgba(212,168,75,0.04), 0 0 100px rgba(212,168,75,0.4), inset 0 0 40px rgba(12,31,63,0.5); }
 }
 @keyframes go-slam {
   0%  { transform: scale(3); opacity: 0; }
@@ -1112,18 +1073,6 @@ main {
 </head>
 <body>
 
-<!-- ── FULLSCREEN PROMPT ──────────────────────────────────── -->
-<div id="fullscreen-prompt" style="display:none">
-  <div class="fs-icon">📱</div>
-  <div class="fs-title">Add to Home Screen</div>
-  <div class="fs-body">For the best experience, install this as an app on your phone</div>
-  <div class="fs-steps" id="fs-steps">
-    <!-- populated by JS based on device -->
-  </div>
-  <button class="fs-btn" onclick="dismissFullscreen()">Got It — Let's Go</button>
-  <div class="fs-skip-link" onclick="dismissFullscreen()">Skip for now</div>
-</div>
-
 <!-- ── GPS TEST PANEL ─────────────────────────────────────── -->
 <div id="gps-test-panel">
   <div class="gps-panel-handle"></div>
@@ -1245,6 +1194,12 @@ main {
       <div class="loc-theme">Repentance is liberation</div>
       <div class="loc-bar"></div>
     </div>
+    <div class="loc-flash" id="loc-flash-8">
+      <div class="loc-num">Principle 09</div>
+      <div class="loc-name">Seek<br>Learning</div>
+      <div class="loc-theme">Study and faith together</div>
+      <div class="loc-bar"></div>
+    </div>
     <div class="principle-nav" id="principle-nav"></div>
   </div>
 
@@ -1254,7 +1209,6 @@ main {
     <div class="go-content">
       <div class="go-eyebrow">Your mission starts now</div>
       <div class="go-word">GO!</div>
-      <div class="go-sub">May your team find strength in every step</div>
     </div>
     <div class="swipe-up-area" id="swipe-area">
       <div class="swipe-arrow-wrap">
@@ -1268,7 +1222,7 @@ main {
           <path d="M2 16L16 4l14 12" stroke="#d4a84b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </div>
-      <div class="swipe-label">Swipe up or tap to begin</div>
+      <div class="swipe-label">Swipe up or tap to launch</div>
     </div>
   </div>
 
@@ -1319,26 +1273,39 @@ main {
         </svg>
       </div>
       <div class="start-title">FSY Field<br><em>Mission</em></div>
-      <div class="start-sub">Heber City · 5 Stops · Your Route</div>
+      <div class="start-sub">Heber City · For the Strength of Youth</div>
     </div>
 
     <div class="card">
-      <div class="card-heading">Enter Your Team Name</div>
+      <div class="card-heading">Select Your Team</div>
       <div class="team-entry">
         <div class="team-label">Team Name</div>
         <div class="team-input-row">
-          <input class="team-input" id="team-name-input" type="text" placeholder="e.g. Team Moroni, The Stripling Warriors…" maxlength="30"/>
+          <select class="team-input" id="team-name-input" style="cursor:pointer;">
+            <option value="">— Choose your team —</option>
+            <option value="Basil">🌿 Basil</option>
+            <option value="Cedar">🌲 Cedar</option>
+            <option value="Dill">🌱 Dill</option>
+            <option value="Fennel">🌾 Fennel</option>
+            <option value="Ginger">🫚 Ginger</option>
+            <option value="Juniper">🍃 Juniper</option>
+            <option value="Kale">🥬 Kale</option>
+            <option value="Mint">🌿 Mint</option>
+            <option value="Olive">🫒 Olive</option>
+            <option value="Parsley">🌿 Parsley</option>
+          </select>
         </div>
+        <div style="font-family:'Josefin Sans',sans-serif;font-size:0.6rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-top:8px;">Each team has a unique route. Multiple people can join the same team.</div>
       </div>
     </div>
 
     <div class="card">
       <div class="card-heading">How It Works</div>
       <ul class="rules-list">
-        <li>Your team gets a unique randomized route of <strong>5 stops</strong> from 8 possible locations</li>
+        <li>Each team has a <strong>preset route</strong> of 5 stops designed to minimize overlap with other teams</li>
         <li>A <strong>heartbeat sensor</strong> pulses faster and turns warmer as you get closer to each stop</li>
         <li>Each stop unlocks when you arrive within 150 meters — GPS required</li>
-        <li>Complete tasks, discuss, and let AI generate a reflection prompt at each location</li>
+        <li>Complete tasks, discuss together, and read the reflection prompt at each location</li>
         <li>Demo Mode is available if GPS isn't accessible</li>
       </ul>
     </div>
@@ -1517,7 +1484,8 @@ const ALL_STOPS = [
     address:'1205 W 650 S, Heber City, UT 84032',
     lat:40.4990, lng:-111.4338,
     theme:'Ordinances & Covenants',
-    fsy_principle:'Ordinances and covenants give you access to God\'s blessings. When you take the sacrament, you are making covenants with God — and He is bound when you keep your side. These sacred commitments are the thread that connects you to heaven.',
+    fsy_read:'FSY Guide pgs. 35 & 36',
+    fsy_discuss:'How do the covenants you made at baptism impact you day-to-day? Can you think of a time in your life when Heavenly Father has kept His promises?',
     scripture_ref:'D&C 82:10',
     scripture_text:'I, the Lord, am bound when ye do what I say; but when ye do not what I say, ye have no promise.',
     tasks:[
@@ -1528,18 +1496,19 @@ const ALL_STOPS = [
       'What covenant means the most to you personally right now, and why?',
       'How does partaking of the sacrament feel different when you really think about what you\'re promising?'
     ],
-    ai_prompt:'A group of LDS youth ages 12-18 is standing outside their chapel in Heber City, Utah. They just read D&C 82:10 about how the Lord is bound when we keep our covenants. Write a short, thoughtful reflection prompt (3-4 sentences flowing prose) that helps them personally connect the sacrament and baptismal covenants to everyday choices this week. Real, personal, encouraging — never preachy.'
+    ai_prompt:'A group of LDS youth ages 12-18 is standing outside their chapel in Heber City, Utah. They just read D&C 82:10 about how the Lord is bound when we keep our covenants. Write a short, thoughtful reflection prompt (3-4 sentences flowing prose) that helps them personally connect the sacrament and baptismal covenants to everyday choices this week. Real, personal, encouraging — never preachy.',
+    reflection:"Every time you take the sacrament, you're making a real promise — and God is making one back. Think about the covenant you renewed most recently. What would it look like this week to actually live it, not just recite it? The Lord is bound when you do what He says. That's not a threat — it's an invitation."
   },
   {
     id:'cemetery', name:'Heber Cemetery', iconId:'icon-grave',
     address:'680 N 550 E, Heber City, UT 84032',
     lat:40.5165, lng:-111.4017,
     theme:'God\'s Plan Is for You',
-    fsy_principle:'God\'s plan is for you. Whenever you face temptations, trials, or hard choices, remind yourself of His eternal plan. See how the truths you know about eternity can help you look at your challenges differently — this life is a very small part of your eternal story.',
+    fsy_read:'FSY Guide pg. 8',
+    fsy_discuss:'How does believing in eternal life change how you face a hard day?',
     scripture_ref:'Mosiah 2:41',
     scripture_text:'I would desire that ye should consider on the blessed and happy state of those that keep the commandments of God. For behold, they are blessed in all things, both temporal and spiritual.',
     tasks:[
-      {iconId:'icon-grave',type:'Observation',desc:'Find a gravestone from the 1800s. Look at the dates. What does a single lifespan teach you about eternity and what really matters?'},
       {iconId:'icon-camera',type:'Photo',desc:'Take a group photo near the oldest gravestone you can find.'},
       {iconId:'icon-chat',type:'Discussion',desc:'Read Mosiah 2:41 together. How does believing in eternal life change how you face a hard day?'}
     ],
@@ -1547,51 +1516,56 @@ const ALL_STOPS = [
       'How does it feel knowing that this life is a tiny part of your eternal existence?',
       'What challenge are you facing right now that looks different through an eternal lens?'
     ],
-    ai_prompt:'A group of LDS youth ages 12-18 is standing in the Heber City Cemetery surrounded by gravestones from the 1800s. They just read Mosiah 2:41. Write a short genuine reflection prompt (3-4 sentences) helping them connect the reality of mortality and eternal life to choices they\'re making now as teenagers. Thoughtful and grounded.'
+    ai_prompt:'A group of LDS youth ages 12-18 is standing in the Heber City Cemetery surrounded by gravestones from the 1800s. They just read Mosiah 2:41. Write a short genuine reflection prompt (3-4 sentences) helping them connect the reality of mortality and eternal life to choices they\'re making now as teenagers. Thoughtful and grounded.',
+    reflection:"Standing here, surrounded by people who lived full lives and are now on the other side, it's hard not to ask: what am I actually building with my time? Eternity isn't something far away — it's the context your choices are already happening in. The hard thing you're facing right now looks different from that angle. How does it change what you'll do tomorrow?"
   },
   {
     id:'pantry', name:'Food Pantry', iconId:'icon-food',
     address:'55 E Center St #180, Heber City, UT 84032',
     lat:40.508486, lng:-111.412032,
     theme:'You Can Help with God\'s Work',
-    fsy_principle:'You can help with God\'s work. Find ways to serve and minister to others — your family, your friends, your community. God needs your hands, your time, and your willingness to show up.',
+    fsy_read:'FSY Guide pg. 15 & 16',
+    fsy_discuss:'What is something you did recently to serve someone else?',
     scripture_ref:'Matthew 25:40',
     scripture_text:'Inasmuch as ye have done it unto one of the least of these my brethren, ye have done it unto me.',
     tasks:[
-      {iconId:'icon-service',type:'Service',desc:'If the pantry is open, ask how you can help — carry boxes, stock shelves, or thank those who run it. If closed, pick up litter nearby as a group.'},
-      {iconId:'icon-chat',type:'Discussion',desc:'Talk about fasting and fast offerings. What does it mean to go without so others can have?'},
-      {iconId:'icon-camera',type:'Photo',desc:'Take a photo of your group doing something service-oriented here.'}
+      {iconId:'icon-service',type:'Service',desc:'Leave your food donation.'},
+      {iconId:'icon-camera',type:'Photo',desc:'Take a selfie in front of the food pantry.'}
     ],
     discussion:[
       'When did you last do something for someone who couldn\'t repay you? How did it feel?',
       'How is serving others the same as serving God, according to Matthew 25:40?'
     ],
-    ai_prompt:'A group of LDS youth ages 12-18 is standing near a food pantry in Heber City. They just read Matthew 25:40. Write a brief genuine reflection prompt (3-4 sentences) inviting them to think about one specific person in their life who needs their help, and what it would mean to act. Personal and actionable.'
+    ai_prompt:'A group of LDS youth ages 12-18 is standing near a food pantry in Heber City. They just read Matthew 25:40. Write a brief genuine reflection prompt (3-4 sentences) inviting them to think about one specific person in their life who needs their help, and what it would mean to act. Personal and actionable.',
+    reflection:"Somewhere in your life right now, there's a person who's carrying something heavy — and you're one of the only people positioned to notice. Serving them doesn't require a program or a calling. It just requires you showing up. Today you stood in a place built entirely on someone choosing to show up. What would it mean for you to be that person for someone this week?"
   },
   {
-    id:'gym', name:'Fit Stop / Anytime Fitness', iconId:'icon-strength',
+    id:'gym', name:'Anytime Fitness', iconId:'icon-strength',
     address:'1099 S Main St Suite 160, Heber City, UT 84032',
     lat:40.4938, lng:-111.4122,
     theme:'Jesus Christ Will Help You',
-    fsy_principle:'Jesus Christ will strengthen you. He will help you change your desires, your thoughts, and your actions. When you are worried, afraid, or struggling in any way, He will comfort you. You can trust Him in every part of your life.',
+    fsy_read:'FSY Guide pg. 19 & Ether 12:27',
+    fsy_discuss:'What are you trying to carry alone that you could let Christ help with?',
     scripture_ref:'Philippians 4:13',
     scripture_text:'I can do all things through Christ which strengtheneth me.',
     tasks:[
-      {iconId:'icon-camera',type:'Photo',desc:'Show your team\'s strength — lift something heavy together (a teammate, a bench, anything) and take a photo. Caption it with Philippians 4:13.'},
+      {iconId:'icon-camera',type:'Photo',desc:'Show your team\'s strength — lift something heavy together (a teammate, a bench, a weight, anything) and take a photo. Caption it with Philippians 4:13.'},
       {iconId:'icon-book',type:'Scripture',desc:'Read Phil. 4:13 out loud. Let each person share one thing they need Christ\'s strength for right now.'}
     ],
     discussion:[
       'What are you trying to carry alone that you could let Christ help with?',
       'How is building physical strength similar to building spiritual strength? What does the training look like?'
     ],
-    ai_prompt:'A group of LDS youth ages 12-18 is standing outside a gym in Heber City. They just read Philippians 4:13. Write a personal grounded reflection prompt (3-4 sentences) connecting physical strength at the gym to relying on Christ\'s strength through emotional, spiritual, or social struggles as a teenager. Real and encouraging.'
+    ai_prompt:'A group of LDS youth ages 12-18 is standing outside a gym in Heber City. They just read Philippians 4:13. Write a personal grounded reflection prompt (3-4 sentences) connecting physical strength at the gym to relying on Christ\'s strength through emotional, spiritual, or social struggles as a teenager. Real and encouraging.',
+    reflection:"Physical strength doesn't come from one good workout — it comes from showing up when it's hard, when you're tired, when you don't feel like it. Your spiritual strength works exactly the same way. There's something in your life right now that Christ is trying to build in you through resistance. What is it — and what would it look like to stop avoiding it and start training through it?"
   },
   {
     id:'lighting', name:'Nova Lighting', iconId:'icon-light',
     address:'162 S Main St, Heber City, UT 84032',
     lat:40.5055, lng:-111.4138,
     theme:'Walk in God\'s Light',
-    fsy_principle:'You make better choices when you can see clearly — that\'s why God\'s light matters. Walking in His light means choosing truth, honesty, and goodness even when darkness looks more appealing. His light doesn\'t just help you see; it helps you become.',
+    fsy_read:'FSY Guide pg. 23',
+    fsy_discuss:'Look at the different lights around you — floodlights, spotlights, warm lamps, dimmers. Which best represents how you share Christ\'s light with others, and why?',
     scripture_ref:'John 8:12',
     scripture_text:'I am the light of the world: he that followeth me shall not walk in darkness, but shall have the light of life.',
     tasks:[
@@ -1602,14 +1576,16 @@ const ALL_STOPS = [
       'What does it feel like to be around someone who genuinely has the light of Christ in them?',
       'In what area of your life do you most need more light right now?'
     ],
-    ai_prompt:'A group of LDS youth ages 12-18 is near a lighting store in Heber City. They just read John 8:12. Write a short creative reflection prompt (3-4 sentences) using imagery of different kinds of light — bright, dim, warm, focused — to help them think about how they\'re sharing or blocking God\'s light in their daily lives.'
+    ai_prompt:'A group of LDS youth ages 12-18 is near a lighting store in Heber City. They just read John 8:12. Write a short creative reflection prompt (3-4 sentences) using imagery of different kinds of light — bright, dim, warm, focused — to help them think about how they\'re sharing or blocking God\'s light in their daily lives.',
+    reflection:"The light in this room doesn't ask permission to push out the darkness — it just shines, and the darkness leaves. You carry that same light. The question isn't whether you have it. The question is what's dimming it — and whether you're willing to let Christ turn it back up. Who in your life most needs to see that light from you right now?"
   },
   {
     id:'mainstreet', name:'Main Street Heber', iconId:'icon-heart',
     address:'150 N Main St, Heber City, UT 84032',
     lat:40.5097, lng:-111.4129,
     theme:'Love God, Love Your Neighbor',
-    fsy_principle:'The two greatest commandments are to love God and love your neighbor. Everything else in the scriptures connects back to these two. How you treat the people around you every day is your discipleship in action.',
+    fsy_read:'FSY Guide pg. 29',
+    fsy_discuss:'What will you do differently this week to love your neighbor?',
     scripture_ref:'Matthew 22:37–39',
     scripture_text:'Thou shalt love the Lord thy God with all thy heart, and with all thy soul, and with all thy mind. And the second is like unto it, Thou shalt love thy neighbour as thyself.',
     tasks:[
@@ -1620,44 +1596,87 @@ const ALL_STOPS = [
       'Who is the hardest "neighbor" for you to love right now — at school, home, or online? What would loving them look like?',
       'If someone watched how you treated people this week, would they know you follow Christ?'
     ],
-    ai_prompt:'A group of LDS youth ages 12-18 just did a random act of kindness for a stranger on Main Street in Heber City. They read Matthew 22:37-39. Write a sincere brief reflection prompt (3-4 sentences) challenging them to think about how loving God and loving neighbors are the same thing — and what one relationship needs more intentional love this week.'
+    ai_prompt:'A group of LDS youth ages 12-18 just did a random act of kindness for a stranger on Main Street in Heber City. They read Matthew 22:37-39. Write a sincere brief reflection prompt (3-4 sentences) challenging them to think about how loving God and loving neighbors are the same thing — and what one relationship needs more intentional love this week.',
+    reflection:"The greatest commandment isn't complicated — love God, love people. But loving people is hard, especially the ones who are difficult, annoying, or different from you. Real discipleship isn't something you perform on Sunday; it's something you do on a random Tuesday for a stranger on the street. You just did it. What would happen if you kept doing it?"
   },
   {
-    id:'clothing', name:'Walmart / Maurices', iconId:'icon-clothes',
-    address:'1268 US-189 Suite 300, Heber City, UT 84032',
-    lat:40.4937, lng:-111.4164,
+    id:'clothing', name:'Walmart', iconId:'icon-clothes',
+    address:'1274 US-189, Heber City, UT 84032',
+    lat:40.4943, lng:-111.4176,
     theme:'Your Body Is Sacred',
-    fsy_principle:'Your body is a sacred gift from God. Treat your body — and others\' bodies — with respect. As you make decisions about clothing and appearance, ask yourself: "Am I honoring my body as a sacred gift from God?" Great personal style and honoring who you really are go together.',
+    fsy_read:'FSY Guide pg. 52 & 53',
+    fsy_discuss:'We show respect for our bodies in many different ways. What are some things you are doing to take care of yourself?',
     scripture_ref:'1 Corinthians 6:19–20',
     scripture_text:'Know ye not that your body is the temple of the Holy Ghost? For ye are bought with a price: therefore glorify God in your body.',
     tasks:[
-      {iconId:'icon-clothes',type:'Photo',desc:'Pick out 2–3 modest, stylish outfits you\'d feel confident and Christlike wearing. Try them on and take a fun group photo. Celebrate good style.'},
+      {iconId:'icon-camera',type:'Photo',desc:'Find some healthy meal or snack ideas. Take a selfie with your finds.'},
       {iconId:'icon-book',type:'Scripture',desc:'Read 1 Cor. 6:19–20 together. How does thinking of your body as a temple change how you approach fashion?'}
     ],
     discussion:[
       'How does what you wear affect how you feel about yourself? How does it affect how others see you?',
       'Is there a difference between dressing modestly and dressing boringly? How do you find great style within your standards?'
     ],
-    ai_prompt:'A group of LDS youth ages 12-18 is inside a clothing store in Heber City, trying on modest outfits. They read 1 Corinthians 6:19-20. Write a fun but genuine reflection prompt (3-4 sentences) helping them connect personal style and self-respect to their identity as children of God. Upbeat and real — not preachy.'
+    ai_prompt:'A group of LDS youth ages 12-18 is inside a clothing store in Heber City, trying on modest outfits. They read 1 Corinthians 6:19-20. Write a fun but genuine reflection prompt (3-4 sentences) helping them connect personal style and self-respect to their identity as children of God. Upbeat and real — not preachy.',
+    reflection:"Your body is not a problem to manage — it's a gift to steward. The way you dress is a daily decision about how you see yourself and how you invite others to see you. That doesn't mean boring or baggy. It means intentional. What would it look like to approach your appearance with the same care you'd give something that belongs to God — because it does?"
   },
   {
-    id:'temple', name:'Temple Site / Timberline Ace', iconId:'icon-temple',
-    address:'E Center St & 737 S Main St, Heber City, UT 84032',
-    lat:40.5066, lng:-111.3907,
-    theme:'Truth & Repentance Set You Free',
-    fsy_principle:'Temple ordinances and covenants give you greater access to God\'s blessings. And repentance isn\'t punishment — it\'s the way the Savior frees us from sin. It means turning toward God. This kind of change isn\'t a one-time event; it\'s an ongoing, beautiful process.',
-    scripture_ref:'John 8:32',
-    scripture_text:'And ye shall know the truth, and the truth shall make you free.',
+    id:'temple', name:'Heber Valley Temple Site', iconId:'icon-temple',
+    address:'E Center St, Heber City, UT 84032',
+    lat:40.5065652, lng:-111.3906822,
+    theme:'Truth Will Make You Free',
+    fsy_read:'FSY Guide pg. 42',
+    fsy_discuss:'Why do you think Heavenly Father requires a temple recommend to enter the temple?',
+    scripture_ref:'D&C 109:13',
+    scripture_text:'And that all people who shall enter upon the threshold of the Lord\'s house may feel thy power, and feel constrained to acknowledge that thou hast sanctified it.',
     tasks:[
-      {iconId:'icon-music',type:'Service',desc:'Stand near the Heber Valley Temple site and sing "I Love to See the Temple" together. Let the spirit of that place be real to you.'},
-      {iconId:'icon-wrench',type:'Photo',desc:'Walk into Timberline Ace Hardware (737 S Main St) and find a tool that "restores something broken" — a patch kit, wood filler, repair adhesive. Photograph it. How is it like repentance?'},
-      {iconId:'icon-book',type:'Scripture',desc:'Read John 8:32 together. How does knowing the truth — about who you are and what Christ offers — make you free?'}
+      {iconId:'icon-music',type:'Service',desc:'Stand near the Heber Valley Temple site and sing "I Love to See the Temple" together as a group. IN PLACE OF YOUR GROUP SELFIE, SUBMIT A VIDEO OF YOUR PERFORMANCE! Let the spirit of that place be real.'},
+      {iconId:'icon-book',type:'Scripture',desc:'Read John 8:32 together: "Ye shall know the truth, and the truth shall make you free." What truths about yourself do you know here that the world tries to take away?'},
+      {iconId:'icon-camera',type:'Photo',desc:'Take a group photo with the temple site in the background.'}
     ],
     discussion:[
-      'What\'s something in your life right now that needs restoring? How does the Atonement make that possible?',
-      'How does having a temple nearby change how you think about your future?'
+      'What covenant are you most looking forward to making in the temple someday — and why?',
+      'How does having a temple nearby change how you think about your future and your identity?'
     ],
-    ai_prompt:'A group of LDS youth ages 12-18 just sang "I Love to See the Temple" near the Heber Valley Temple site and visited Timberline Ace Hardware to find a tool representing restoration and repentance. They read John 8:32. Write a tender heartfelt reflection prompt (3-4 sentences) inviting them to think about one thing Christ wants to restore in their life — and how the temple and Atonement make that possible. Genuine and hopeful.'
+    reflection:'Standing here, it\'s worth asking: what do you actually believe about who you are? The temple isn\'t just a building — it\'s God\'s answer to that question. Every ordinance inside says: you are worth redeeming, worth covenanting with, worth the full weight of heaven\'s attention. Whatever you\'ve been told or told yourself about your worth, this place says something different. What would change if you actually believed it?'
+  },
+  {
+    id:'ace', name:'Timberline Ace Hardware', iconId:'icon-wrench',
+    address:'737 S Main St, Heber City, UT 84032',
+    lat:40.498396899999996, lng:-111.41208209999999,
+    theme:'Repentance Restores You',
+    fsy_read:'FSY Guide pg. 19 & 20',
+    fsy_discuss:'Compare repentance to "fixing" or "restoring". How does repentance help us become like new?',
+    scripture_ref:'Isaiah 1:18',
+    scripture_text:'Though your sins be as scarlet, they shall be as white as snow; though they be red like crimson, they shall be as wool.',
+    tasks:[
+      {iconId:'icon-wrench',type:'Observation',desc:'Walk the store and find a product that "restores something broken" — wood filler, a repair patch, adhesive, a replacement part. Pick it up.'},
+      {iconId:'icon-camera',type:'Photo',desc:'Take a selfie with your tool.'},
+      {iconId:'icon-chat',type:'Discussion',desc:'Share your word with the group. Why that word?'}
+    ],
+    discussion:[
+      'What\'s something in your life right now that needs restoring? How does repentance — not just saying sorry but actually changing — make that possible?',
+      'Why do you think God chose "white as snow" as the image for what repentance does? What does that tell you about how He sees you after?'
+    ],
+    reflection:'Repentance isn\'t the thing you do when you\'ve failed. It\'s the ongoing process of becoming who God always saw you as. The Savior\'s atonement isn\'t a last resort — it\'s the whole plan. Whatever is broken in you right now, He already bought the repair kit. The question isn\'t whether He can fix it. The question is whether you\'ll let Him.'
+  },
+  {
+    id:'library', name:'Wasatch County Library', iconId:'icon-book',
+    address:'465 E 1200 S, Heber City, UT 84032',
+    lat:40.4937391, lng:-111.405412,
+    theme:'Truth Will Make You Free',
+    fsy_read:'FSY Guide pg. 59',
+    fsy_discuss:'How can someone\'s education (formal or informal) increase their ability to serve the Lord?',
+    scripture_ref:'D&C 88:118',
+    scripture_text:'Seek ye out of the best books words of wisdom; seek learning, even by study and also by faith.',
+    tasks:[
+      {iconId:'icon-book',type:'Observation',desc:'Find a book with the word "Truth" in the title.'},
+      {iconId:'icon-camera',type:'Photo',desc:'Take a selfie with this book.'}
+    ],
+    discussion:[
+      'How can learning and education strengthen your testimony and your ability to serve the Lord?',
+      'What is one thing you want to learn more about — spiritually or educationally — and why?'
+    ],
+    reflection:'Truth doesn\'t have to be found the hard way — it can be sought. The library you\'re standing in is built on the idea that knowledge changes people, and so is the gospel. God has never asked you to stop thinking; He\'s asked you to seek. What\'s one thing you\'ve been curious about — about your faith, about the world, about yourself — that you\'ve been putting off exploring? What would change if you actually looked for the answer?'
   }
 ];
 
@@ -1675,25 +1694,30 @@ let S = {
 
 const RADIUS_M = 150;
 
-// ── SEEDED RNG ───────────────────────────────────────────────
-function seededRNG(seed) {
-  let s = seed;
-  return () => { s = (s * 1664525 + 1013904223) & 0xffffffff; return (s >>> 0) / 0xffffffff; };
-}
-function shuffleSeeded(arr, rng) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
+// ── PRESET TEAM ROUTES ───────────────────────────────────────
+// 10 stops: chapel cemetery pantry gym lighting
+//           mainstreet clothing temple ace library
+// Perfect round-robin: ZERO position collisions across all 10 teams.
+const TEAM_ROUTES = {
+  'Basil':   ['chapel','cemetery','pantry','gym','lighting'],
+  'Cedar':   ['cemetery','pantry','gym','lighting','mainstreet'],
+  'Dill':    ['pantry','gym','lighting','mainstreet','clothing'],
+  'Fennel':  ['gym','lighting','mainstreet','clothing','temple'],
+  'Ginger':  ['lighting','mainstreet','clothing','temple','ace'],
+  'Juniper': ['mainstreet','clothing','temple','ace','library'],
+  'Kale':    ['clothing','temple','ace','library','chapel'],
+  'Mint':    ['temple','ace','library','chapel','cemetery'],
+  'Olive':   ['ace','library','chapel','cemetery','pantry'],
+  'Parsley': ['library','chapel','cemetery','pantry','gym'],
+};
 
 function buildTeamRoute(name) {
-  let seed = 0;
-  for (let i = 0; i < name.length; i++) seed = (seed * 31 + name.charCodeAt(i)) | 0;
-  const rng = seededRNG(Math.abs(seed) || 42);
-  return shuffleSeeded(ALL_STOPS, rng).slice(0, 5);
+  const stopIds = TEAM_ROUTES[name];
+  if (!stopIds) {
+    // Fallback: first 5 stops
+    return ALL_STOPS.slice(0, 5);
+  }
+  return stopIds.map(id => ALL_STOPS.find(s => s.id === id)).filter(Boolean);
 }
 
 // ── UTILS ────────────────────────────────────────────────────
@@ -1843,7 +1867,13 @@ function tickDistances() {
 // ── HUNT FLOW ────────────────────────────────────────────────
 function startHunt() {
   const input = document.getElementById('team-name-input').value.trim();
-  S.teamName = input || 'Your Team';
+  if (!input) {
+    const sel = document.getElementById('team-name-input');
+    sel.style.borderColor = 'var(--gold)';
+    sel.focus();
+    return;
+  }
+  S.teamName = input;
   S.teamStops = buildTeamRoute(S.teamName);
   S.currentIdx = 0; S.completed = []; S.aiCache = {};
 
@@ -1969,8 +1999,12 @@ function buildCard(stop, i) {
           <div class="scripture-text">"${stop.scripture_text}"</div>
         </div>
         <div class="principle-block">
-          <div class="block-label">FSY Principle</div>
-          <div class="principle-text">${stop.fsy_principle}</div>
+          <div class="block-label">Read</div>
+          <div class="principle-text">${stop.fsy_read}</div>
+        </div>
+        <div class="principle-block">
+          <div class="block-label">Discuss</div>
+          <div class="principle-text">${stop.fsy_discuss}</div>
         </div>
         <hr class="divider">
         <div class="block-label">Your Tasks</div>
@@ -2076,23 +2110,14 @@ function unlockStop(i) {
 
 // ── AI ───────────────────────────────────────────────────────
 // ── FIXED REFLECTION PROMPTS ─────────────────────────────────
-const REFLECTIONS = {
-  chapel:     "Every time you take the sacrament, you're making a real promise — and God is making one back. Think about the covenant you renewed most recently. What would it look like this week to actually live it, not just recite it? The Lord is bound when you do what He says. That's not a threat — it's an invitation.",
-  cemetery:   "Standing here, surrounded by people who lived full lives and are now on the other side, it's hard not to ask: what am I actually building with my time? Eternity isn't something far away — it's the context your choices are already happening in. The hard thing you're facing right now looks different from that angle. How does it change what you'll do tomorrow?",
-  pantry:     "Somewhere in your life right now, there's a person who's carrying something heavy — and you're one of the only people positioned to notice. Serving them doesn't require a program or a calling. It just requires you showing up. Today you stood in a place built entirely on someone choosing to show up. What would it mean for you to be that person for someone this week?",
-  gym:        "Physical strength doesn't come from one good workout — it comes from showing up when it's hard, when you're tired, when you don't feel like it. Your spiritual strength works exactly the same way. There's something in your life right now that Christ is trying to build in you through resistance. What is it, and what would it look like to stop fighting it and start training through it?",
-  lighting:   "The light in this room doesn't ask permission to push out the darkness — it just shines, and the darkness leaves. You carry that same light. The question isn't whether you have it. The question is what's dimming it — and whether you're willing to let Christ turn it back up. Who in your life most needs to see that light from you right now?",
-  mainstreet: "The greatest commandment isn't complicated — love God, love people. But loving people is hard, especially the ones who are difficult, annoying, or different from you. Real discipleship isn't something you perform on Sunday; it's something you do on a random Tuesday for a stranger on the street. You just did it. What would happen if you kept doing it?",
-  clothing:   "Your body is not a problem to manage — it's a gift to steward. The way you dress is a daily decision about how you see yourself and how you invite others to see you. That doesn't mean boring or baggy. It means intentional. What would it look like to approach your appearance with the same care you'd give something that belongs to God — because it does?",
-  temple:     "Repentance isn't the thing you do when you've failed. It's the ongoing process of becoming who God always saw you as. The Savior's atonement isn't a last resort — it's the whole plan. Whatever is broken in you right now, He already bought the repair kit. The question is whether you'll let Him fix it. What's one thing you've been holding onto that's ready to be restored?"
-};
-
+// Reflections are now stored on each stop object as stop.reflection
+// This function just renders it
 function fetchAI(i) {
   const stop = S.teamStops[i];
   const box = document.getElementById('ai-box-' + i);
   if (!box) return;
-  const text = REFLECTIONS[stop.id] || "Take a quiet moment together. What did this stop stir in you? What's one thing you'll do differently this week because of it?";
-  // Small delay so it feels intentional, not instant
+  const fallback = "Take a quiet moment together. What did this stop stir in you? What's one thing you'll do differently this week because of it?";
+  const text = stop.reflection || fallback;
   setTimeout(() => { box.innerHTML = text; }, 400);
 }
 
@@ -2155,7 +2180,7 @@ function markComplete(i) {
 
 // ── AMAZING RACE INTRO ───────────────────────────────────────
 let introPrincipleIdx = -1;
-const TOTAL_PRINCIPLES = 8;
+const TOTAL_PRINCIPLES = 9;
 
 function showIntroStage(id) {
   document.querySelectorAll('.intro-stage').forEach(s => s.classList.remove('active'));
@@ -2258,129 +2283,6 @@ function showWin() {
     </li>`).join('');
   document.getElementById('prog-wrap').style.display = 'none';
   showScreen('screen-win');
-}
-
-// ── FULLSCREEN / ADD TO HOME SCREEN PROMPT ───────────────────
-(function checkFullscreen() {
-  const isStandalone =
-    window.matchMedia('(display-mode: standalone)').matches ||
-    window.navigator.standalone === true;
-  if (isStandalone) return;
-
-  const ua = navigator.userAgent;
-  const isIOS = /iphone|ipad|ipod/i.test(ua);
-  const isAndroid = /android/i.test(ua);
-  const isChrome = /chrome/i.test(ua) && !/edg/i.test(ua);
-  const isSamsung = /samsungbrowser/i.test(ua);
-  const isFirefox = /firefox/i.test(ua);
-
-  // Only show on mobile
-  if (!isIOS && !isAndroid) return;
-
-  setTimeout(() => {
-    const prompt = document.getElementById('fullscreen-prompt');
-    const steps  = document.getElementById('fs-steps');
-
-    if (isIOS) {
-      steps.innerHTML = `
-        <div class="fs-step"><div class="fs-step-num">1</div><div class="fs-step-text">Tap the <strong>Share ⎙</strong> button at the bottom of Safari</div></div>
-        <div class="fs-step"><div class="fs-step-num">2</div><div class="fs-step-text">Scroll and tap <strong>"Add to Home Screen"</strong></div></div>
-        <div class="fs-step"><div class="fs-step-num">3</div><div class="fs-step-text">Tap <strong>Add</strong>, then reopen from your home screen</div></div>`;
-    } else if (isAndroid && isSamsung) {
-      steps.innerHTML = `
-        <div class="fs-step"><div class="fs-step-num">1</div><div class="fs-step-text">Tap the <strong>⋮ menu</strong> at the bottom of Samsung Internet</div></div>
-        <div class="fs-step"><div class="fs-step-num">2</div><div class="fs-step-text">Tap <strong>"Add page to"</strong> → <strong>"Home screen"</strong></div></div>
-        <div class="fs-step"><div class="fs-step-num">3</div><div class="fs-step-text">Tap <strong>Add</strong>, then reopen from your home screen</div></div>`;
-    } else if (isAndroid && isFirefox) {
-      steps.innerHTML = `
-        <div class="fs-step"><div class="fs-step-num">1</div><div class="fs-step-text">Tap the <strong>⋮ menu</strong> in Firefox</div></div>
-        <div class="fs-step"><div class="fs-step-num">2</div><div class="fs-step-text">Tap <strong>"Install"</strong> or <strong>"Add to Home screen"</strong></div></div>
-        <div class="fs-step"><div class="fs-step-num">3</div><div class="fs-step-text">Tap <strong>Add</strong>, then reopen from your home screen</div></div>`;
-    } else {
-      // Android Chrome (default)
-      steps.innerHTML = `
-        <div class="fs-step"><div class="fs-step-num">1</div><div class="fs-step-text">Tap the <strong>⋮ menu</strong> at the top right of Chrome</div></div>
-        <div class="fs-step"><div class="fs-step-num">2</div><div class="fs-step-text">Look for <strong>"Add to Home screen"</strong> or <strong>"Install app"</strong></div></div>
-        <div class="fs-step"><div class="fs-step-num">3</div><div class="fs-step-text">If not visible, try <strong>Chrome address bar → Install icon ⊕</strong></div></div>`;
-    }
-    prompt.style.display = 'flex';
-  }, 18000);
-})();
-
-function dismissFullscreen() {
-  const p = document.getElementById('fullscreen-prompt');
-  p.style.transition = 'opacity 0.3s';
-  p.style.opacity = '0';
-  setTimeout(() => {
-    p.style.display = 'none';
-    // Immediately request GPS permission after dismissing
-    triggerGPSPermission();
-  }, 300);
-  if (document.documentElement.requestFullscreen) {
-    document.documentElement.requestFullscreen().catch(() => {});
-  }
-}
-
-function triggerGPSPermission() {
-  // Check current state first, then request if needed
-  navigator.permissions?.query({ name: 'geolocation' }).then(result => {
-    if (result.state === 'granted') {
-      // Already have it — just refresh position
-      refreshGPS();
-    } else if (result.state === 'denied') {
-      // Show inline message — can't prompt again
-      showGPSBanner('denied');
-    } else {
-      // Prompt state — calling getCurrentPosition triggers the native dialog
-      showGPSBanner('prompting');
-      navigator.geolocation.getCurrentPosition(
-        pos => {
-          S.userLat = pos.coords.latitude;
-          S.userLng = pos.coords.longitude;
-          S.gpsAvailable = true;
-          setGPS('live');
-          showGPSBanner('granted');
-          tickDistances();
-        },
-        err => {
-          showGPSBanner(err.code === 1 ? 'denied' : 'error');
-        },
-        { enableHighAccuracy: true, timeout: 15000 }
-      );
-    }
-  }).catch(() => {
-    // Permissions API not available — just call directly
-    navigator.geolocation?.getCurrentPosition(
-      pos => { S.userLat = pos.coords.latitude; S.userLng = pos.coords.longitude; S.gpsAvailable = true; setGPS('live'); tickDistances(); },
-      () => {}
-    );
-  });
-}
-
-function showGPSBanner(state) {
-  // Show a brief toast/banner about GPS state
-  const existing = document.getElementById('gps-toast');
-  if (existing) existing.remove();
-  const msgs = {
-    prompting: '📍 Allow location access when your browser asks…',
-    granted:   '✓ Location granted — GPS is active',
-    denied:    '✗ Location denied — open GPS Test to fix',
-    error:     '⚠ Could not get location — try GPS Test'
-  };
-  const toast = document.createElement('div');
-  toast.id = 'gps-toast';
-  toast.style.cssText = `
-    position:fixed; bottom:80px; left:50%; transform:translateX(-50%);
-    background:rgba(12,31,63,0.95); color:${state==='granted'?'#4ade80':state==='denied'?'#f87171':'#e8cc7a'};
-    border:1px solid ${state==='granted'?'rgba(74,222,128,0.3)':state==='denied'?'rgba(248,113,113,0.3)':'rgba(232,204,122,0.3)'};
-    padding:10px 18px; border-radius:8px; z-index:8500;
-    font-family:'Josefin Sans',sans-serif; font-size:0.68rem; letter-spacing:1.5px;
-    white-space:nowrap; box-shadow:0 4px 20px rgba(0,0,0,0.3);
-    animation:fade-up 0.3s ease;
-  `;
-  toast.textContent = msgs[state] || '';
-  document.body.appendChild(toast);
-  if (state !== 'prompting') setTimeout(() => toast.remove(), 3500);
 }
 
 // ── GPS TEST / DIAGNOSTICS PANEL ─────────────────────────────
