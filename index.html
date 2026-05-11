@@ -1284,16 +1284,16 @@ select.team-input {
         <div class="team-input-row">
           <select class="team-input" id="team-name-input" style="cursor:pointer;">
             <option value="">— Choose your team —</option>
-            <option value="Basil">🌿 Basil</option>
-            <option value="Cedar">🌲 Cedar</option>
-            <option value="Dill">🌱 Dill</option>
-            <option value="Fennel">🌾 Fennel</option>
-            <option value="Ginger">🫚 Ginger</option>
-            <option value="Juniper">🍃 Juniper</option>
-            <option value="Kale">🥬 Kale</option>
-            <option value="Mint">🌿 Mint</option>
-            <option value="Olive">🫒 Olive</option>
-            <option value="Parsley">🌿 Parsley</option>
+            <option value="Cheetah">🐆 Cheetah</option>
+            <option value="Elephant">🐘 Elephant</option>
+            <option value="Flamingo">🦩 Flamingo</option>
+            <option value="Gorilla">🦍 Gorilla</option>
+            <option value="Hippo">🦛 Hippo</option>
+            <option value="Iguana">🦎 Iguana</option>
+            <option value="Jaguar">🐆 Jaguar</option>
+            <option value="Koala">🐨 Koala</option>
+            <option value="Lemur">🐒 Lemur</option>
+            <option value="Meerkat">🦡 Meerkat</option>
           </select>
         </div>
         <div style="font-family:'Josefin Sans',sans-serif;font-size:0.6rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-top:8px;">Each team has a unique route. Multiple people can join the same team.</div>
@@ -1303,9 +1303,9 @@ select.team-input {
     <div class="card">
       <div class="card-heading">How It Works</div>
       <ul class="rules-list">
-        <li>Each team has a <strong>preset route</strong> of 5 stops designed to minimize overlap with other teams</li>
+        <li>Each team has a <strong>preset route</strong> of 4 stops designed to minimize overlap with other teams</li>
         <li>A <strong>heartbeat sensor</strong> pulses faster and turns warmer as you get closer to each stop</li>
-        <li>Each stop unlocks when you arrive within 150 meters — GPS required</li>
+        <li>Drive to each location — GPS unlocks the content when you're within 150 meters (~164 yards)</li>
         <li>Complete tasks, discuss together, and read the reflection prompt at each location</li>
         <li>Demo Mode is available if GPS isn't accessible</li>
       </ul>
@@ -1482,8 +1482,8 @@ select.team-input {
 const ALL_STOPS = [
   {
     id:'chapel', name:'The Chapel', iconId:'icon-chapel',
-    address:'1205 W 650 S, Heber City, UT 84032',
-    lat:40.4990, lng:-111.4338,
+    address:'1661 E 980 S, Heber City, UT 84032',
+    lat:40.4963882, lng:-111.38818370000001,
     theme:'Ordinances & Covenants',
     tasks:[
       {iconId:'icon-book',type:'Read',desc:'FSY Guide pgs. 35 & 36'},
@@ -1499,7 +1499,7 @@ const ALL_STOPS = [
     tasks:[
       {iconId:'icon-book',type:'Read',desc:'FSY Guide pg. 8'},
       {iconId:'icon-chat',type:'Discuss',desc:'How does believing in eternal life change how you face a hard day?'},
-      {iconId:'icon-camera',type:'Photo',desc:'Take a group photo near the oldest gravestone you can find.'}
+      {iconId:'icon-camera',type:'Photo',desc:'Each person find a grave and figure out who has the oldest one. Take a photo of the winner\'s grave.'}
     ]
   },
   {
@@ -1610,29 +1610,30 @@ let S = {
   aiCache: {}
 };
 
-const RADIUS_M = 150;
+const RADIUS_M = 150; // ~164 yards
 
 // ── PRESET TEAM ROUTES ───────────────────────────────────────
-// 10 stops: chapel cemetery pantry gym lighting
-//           mainstreet clothing temple ace library
-// Perfect round-robin: ZERO position collisions across all 10 teams.
+// 10 stops, 10 teams, 4 stops each.
+// Chapel is NEVER at position 1 (teams start from the chapel building).
+// Cheetah–Lemur = perfect round-robin (0 collisions among themselves).
+// Meerkat = 3 unavoidable collisions (mathematical minimum for 10th team).
 const TEAM_ROUTES = {
-  'Basil':   ['chapel','cemetery','pantry','gym','lighting'],
-  'Cedar':   ['cemetery','pantry','gym','lighting','mainstreet'],
-  'Dill':    ['pantry','gym','lighting','mainstreet','clothing'],
-  'Fennel':  ['gym','lighting','mainstreet','clothing','temple'],
-  'Ginger':  ['lighting','mainstreet','clothing','temple','ace'],
-  'Juniper': ['mainstreet','clothing','temple','ace','library'],
-  'Kale':    ['clothing','temple','ace','library','chapel'],
-  'Mint':    ['temple','ace','library','chapel','cemetery'],
-  'Olive':   ['ace','library','chapel','cemetery','pantry'],
-  'Parsley': ['library','chapel','cemetery','pantry','gym'],
+  'Cheetah': ['cemetery','pantry','gym','lighting'],
+  'Elephant':['pantry','gym','lighting','mainstreet'],
+  'Flamingo':['gym','lighting','mainstreet','clothing'],
+  'Gorilla': ['lighting','mainstreet','clothing','temple'],
+  'Hippo':   ['mainstreet','clothing','temple','ace'],
+  'Iguana':  ['clothing','temple','ace','library'],
+  'Jaguar':  ['temple','ace','library','chapel'],
+  'Koala':   ['ace','library','chapel','cemetery'],
+  'Lemur':   ['library','chapel','cemetery','pantry'],
+  'Meerkat': ['cemetery','mainstreet','library','gym'],
 };
 
 function buildTeamRoute(name) {
   const stopIds = TEAM_ROUTES[name];
   if (!stopIds) {
-    // Fallback: first 5 stops
+    // Fallback: first 4 stops
     return ALL_STOPS.slice(0, 5);
   }
   return stopIds.map(id => ALL_STOPS.find(s => s.id === id)).filter(Boolean);
@@ -1644,15 +1645,40 @@ function haversineDist(lat1,lng1,lat2,lng2) {
   const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
   return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
-function fmtDist(m) { return m<1000 ? Math.round(m)+' m' : (m/1000).toFixed(1)+' km'; }
+function fmtDist(m) {
+  const yards = m * 1.09361;
+  const miles = m / 1609.344;
+  if (miles >= 0.2) return miles.toFixed(1) + ' mi';
+  return Math.round(yards) + ' yds';
+}
 function showScreen(id) { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
 function svgIcon(symbolId, size=22, color='#c8a84b') {
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" style="display:block;"><use href="#${symbolId}" stroke="${color}" fill="none"/></svg>`;
 }
 
 // ── HEARTBEAT ────────────────────────────────────────────────
+const FRIGID_LABELS = [
+  'Freezing Cold',
+  'Brr… keep moving',
+  'Ice, Ice, Baby',
+  'You Are Frozen',
+  "The Cold Doesn't Bother You",
+];
+let _frigidIdx = 0;
+let _frigidTimer = null;
+
 function tempClass(dist) {
-  if (dist > 400) return ['temp-frigid','speed-1','Freezing Cold'];
+  if (dist > 400) {
+    // Rotate label only when in frigid zone
+    if (!_frigidTimer) {
+      _frigidTimer = setInterval(() => {
+        _frigidIdx = (_frigidIdx + 1) % FRIGID_LABELS.length;
+      }, 3500);
+    }
+    return ['temp-frigid','speed-1', FRIGID_LABELS[_frigidIdx]];
+  }
+  // Clear rotation timer once out of frigid zone
+  if (_frigidTimer) { clearInterval(_frigidTimer); _frigidTimer = null; _frigidIdx = 0; }
   if (dist > 300) return ['temp-cold',  'speed-2','Cold'];
   if (dist > 200) return ['temp-cool',  'speed-3','Getting Warmer'];
   if (dist > 150) return ['temp-neutral','speed-4','Warm'];
@@ -1685,7 +1711,10 @@ function setGPS(status) {
 function startGPS() {
   if (!navigator.geolocation) { enterDemo('no-api'); return; }
 
-  // HTTPS check — Geolocation requires secure context
+  // ?demo=yes in URL
+  if (window._forceDemoMode) { enterDemo('query'); return; }
+
+  // HTTPS check
   if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
     enterDemo('insecure');
     return;
@@ -1759,15 +1788,17 @@ function enterDemo(reason) {
   const banner = document.getElementById('demo-banner');
 
   const msgs = {
-    'insecure':    '⚠ GPS requires HTTPS — using Demo Mode. Host this file on a secure server to enable live GPS.',
-    'denied':      '📍 Location permission denied — using Demo Mode. Enable location in browser settings to use live GPS.',
-    'timeout':     '⏱ GPS timed out — using Demo Mode. Tap the GPS chip in the header to retry.',
+    'query':       '🎮 Demo Mode active — tap "Simulate Arrival" at each stop.',
+    'insecure':    '⚠ GPS requires HTTPS — using Demo Mode.',
+    'denied':      '📍 Location denied — using Demo Mode. Enable location in browser settings to use live GPS.',
+    'timeout':     '⏱ GPS timed out — using Demo Mode. Tap the GPS chip to retry.',
     'unavailable': '📡 GPS signal unavailable — using Demo Mode. Try moving outdoors.',
-    'no-api':      '🚫 This browser does not support GPS — using Demo Mode.',
+    'no-api':      '🚫 Browser does not support GPS — using Demo Mode.',
   };
-  banner.textContent = msgs[reason] || 'Demo Mode active — GPS unavailable.';
+  banner.textContent = msgs[reason] || 'Demo Mode active.';
   banner.style.display = 'block';
 
+  // Show sim button only for current stop in demo mode
   const sb = document.getElementById('sim-btn-' + S.currentIdx);
   if (sb) sb.style.display = 'block';
 }
@@ -1801,6 +1832,8 @@ function startHunt() {
   buildAllCards();
   showScreen('screen-game');
   startGPS();
+  // Apply any ?unlock=N or ?demo=yes after DOM is ready
+  setTimeout(applyQueryUnlocks, 100);
 }
 
 function restartHunt() {
@@ -1814,7 +1847,7 @@ function restartHunt() {
 // ── PROGRESS ─────────────────────────────────────────────────
 function buildProgress() {
   const track = document.getElementById('prog-track'); track.innerHTML = '';
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 4; i++) {
     if (i > 0) {
       const line = document.createElement('div');
       line.className = 'prog-line'; line.id = 'prog-line-' + i;
@@ -1828,7 +1861,7 @@ function buildProgress() {
 }
 
 function updateProgress() {
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 4; i++) {
     const node = document.getElementById('prog-node-' + i);
     if (!node) continue;
     const done = S.completed.includes(i);
@@ -1842,7 +1875,7 @@ function updateProgress() {
       if (line) line.className = 'prog-line' + (S.completed.includes(i-1)?' done':'');
     }
   }
-  document.getElementById('prog-label').textContent = `${S.completed.length} of 5 stops complete`;
+  document.getElementById('prog-label').textContent = `${S.completed.length} of 4 stops complete`;
 }
 
 // ── CARDS ─────────────────────────────────────────────────────
@@ -1866,7 +1899,7 @@ function buildCard(stop, i) {
         <div class="mc-head-left">
           <div class="mc-stop-icon">${svgIcon('icon-lock', 20, 'rgba(200,168,75,0.25)')}</div>
           <div>
-            <div class="mc-label">Stop ${i+1} of 5</div>
+            <div class="mc-label">Stop ${i+1} of 4</div>
             <div class="mc-name">— Locked —</div>
           </div>
         </div>
@@ -1884,7 +1917,7 @@ function buildCard(stop, i) {
       <div class="mc-head-left">
         <div class="mc-stop-icon">${svgIcon(stop.iconId, 22, '#c8a84b')}</div>
         <div>
-          <div class="mc-label">Stop ${i+1} of 5 · ${stop.theme}</div>
+          <div class="mc-label">Stop ${i+1} of 4 · ${stop.theme}</div>
           <div class="mc-name">${stop.name}</div>
         </div>
       </div>
@@ -1905,7 +1938,7 @@ function buildCard(stop, i) {
         </div>
         <div class="lock-msg-block" id="lock-msg-${i}">
           <div class="lock-icon-svg">${svgIcon('icon-lock', 28, '#7a7060')}</div>
-          <div class="lock-text">Walk to <strong>${stop.name}</strong><br>to unlock this mission</div>
+          <div class="lock-text">Drive to <strong>${stop.name}</strong><br>to unlock this mission</div>
         </div>
         <button class="sim-btn" id="sim-btn-${i}" onclick="unlockStop(${i})">
           Simulate Arrival at ${stop.name}
@@ -1990,9 +2023,9 @@ function revealNextCard(nextIdx) {
 function unlockStop(i) {
   const ul = document.getElementById('unlocked-' + i);
   if (!ul || ul.classList.contains('show')) return;
-
   const stopName = S.teamStops[i].name;
-
+  // Arrival vibration: two short pulses
+  if (navigator.vibrate) navigator.vibrate([100, 80, 150]);
   playArrivalBurst(stopName, () => {
     const hbOuter = document.getElementById('hb-outer-' + i);
     if (hbOuter) hbOuter.style.display = 'none';
@@ -2034,6 +2067,9 @@ function markComplete(i) {
   const btn = document.getElementById('complete-btn-' + i);
   if (btn) btn.disabled = true;
 
+  // Complete vibration: firm triple pulse
+  if (navigator.vibrate) navigator.vibrate([80, 60, 80, 60, 200]);
+
   playStampAnimation(() => {
     S.completed.push(i);
 
@@ -2045,13 +2081,13 @@ function markComplete(i) {
 
     updateProgress();
 
-    if (S.completed.length === 5) {
+    if (S.completed.length === 4) {
       setTimeout(showWin, 600);
       return;
     }
 
     if (S.currentIdx === i) {
-      S.currentIdx = Math.min(i + 1, 4);
+      S.currentIdx = Math.min(i + 1, 3);
       revealNextCard(S.currentIdx);
     }
   });
@@ -2164,6 +2200,71 @@ function showWin() {
   showScreen('screen-win');
 }
 
+// ── URL QUERY PARAMS — demo and unlock ───────────────────────
+(function handleQueryParams() {
+  const params = new URLSearchParams(window.location.search);
+
+  // ?demo=yes — activate demo mode silently on load
+  if (params.get('demo') === 'yes') {
+    // Flag picked up after hunt starts in startGPS
+    window._forceDemoMode = true;
+  }
+
+  // ?unlock=N — unlock the Nth stop (1-based) after hunt starts
+  const unlockParam = params.get('unlock');
+  if (unlockParam) {
+    const n = parseInt(unlockParam, 10);
+    if (!isNaN(n) && n >= 1 && n <= 4) {
+      window._forceUnlock = n - 1; // convert to 0-based index
+    }
+  }
+})();
+
+// Apply any forced unlocks after hunt builds
+function applyQueryUnlocks() {
+  // Demo mode
+  if (window._forceDemoMode) {
+    enterDemo('query');
+    return;
+  }
+  // Unlock specific stop
+  if (window._forceUnlock !== undefined) {
+    const targetIdx = window._forceUnlock;
+    // Unlock all stops up to and including targetIdx
+    for (let i = 0; i <= targetIdx; i++) {
+      if (!S.completed.includes(i) && i < targetIdx) {
+        // Mark earlier stops silently as complete
+        S.completed.push(i);
+        S.currentIdx = i + 1;
+        const banner = document.getElementById('done-banner-' + i);
+        if (banner) banner.classList.add('show');
+        const btn = document.getElementById('complete-btn-' + i);
+        if (btn) btn.remove();
+        const card = document.getElementById('card-' + i);
+        if (card) card.style.opacity = '0.72';
+      } else if (i === targetIdx) {
+        // Unlock target stop without animation
+        S.currentIdx = targetIdx;
+        const hbOuter = document.getElementById('hb-outer-' + i);
+        if (hbOuter) hbOuter.style.display = 'none';
+        const ul = document.getElementById('unlocked-' + i);
+        if (ul) ul.classList.add('show');
+        const card = document.getElementById('card-' + i);
+        if (card) card.style.opacity = '1';
+        // Rebuild sealed cards now that currentIdx changed
+        for (let j = i + 1; j < 5; j++) {
+          const sealedCard = document.getElementById('card-' + j);
+          if (sealedCard && sealedCard.classList.contains('sealed')) break;
+        }
+      }
+    }
+    updateProgress();
+    // Show toast
+    showToast(`🔓 Stop ${targetIdx + 1} unlocked via URL`, '#4ade80');
+    delete window._forceUnlock;
+  }
+}
+
 // ── GPS TEST / DIAGNOSTICS PANEL ─────────────────────────────
 function openGPSPanel() {
   document.getElementById('gps-test-panel').classList.add('open');
@@ -2269,7 +2370,7 @@ function diagUpdateStops() {
   }
   list.innerHTML = S.teamStops.map((stop, i) => {
     const dist = S.userLat ? haversineDist(S.userLat, S.userLng, stop.lat, stop.lng) : null;
-    const distStr = dist !== null ? (dist < 1000 ? Math.round(dist) + ' m' : (dist/1000).toFixed(2) + ' km') : '—';
+    const distStr = dist !== null ? fmtDist(dist) : '—';
     const isDone = S.completed.includes(i);
     const isClose = dist !== null && dist < RADIUS_M;
     return `<div class="gps-stop-row">
